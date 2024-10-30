@@ -1,0 +1,73 @@
+{
+    "name": "dasundev/livewire-dropzone",
+    "description": "A Livewire Dropzone component for simple drag-and-drop file uploads.",
+    "keywords": [
+        "livewire",
+        "dropzone"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dasun Tharanga",
+            "email": "hello@dasun.dev",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "livewire/livewire": "^3.5",
+        "spatie/laravel-package-tools": "^1.16"
+    },
+    "require-dev": {
+        "larastan/larastan": "^2.9",
+        "laravel/pint": "^1.16",
+        "orchestra/testbench": "^8.23",
+        "pestphp/pest": "^1.23"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dasundev\\LivewireDropzone\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Dasundev\\LivewireDropzone\\Tests\\": "tests",
+            "Workbench\\App\\": "workbench/app/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "test": "./vendor/bin/pest",
+        "lint": "./vendor/bin/pint --dirty",
+        "analyse": "./vendor/bin/phpstan analyse",
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "build": "@php vendor/bin/testbench workbench:build --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Dasundev\\LivewireDropzone\\LivewireDropzoneServiceProvider"
+            ],
+            "aliases": {
+                "LivewireDropzone": "Dasundev\\LivewireDropzone\\LivewireDropzoneFacade"
+            }
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

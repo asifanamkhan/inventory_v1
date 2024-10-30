@@ -1,0 +1,55 @@
+{
+  "name": "dasundev/livewire-quill-text-editor",
+  "description": "A powerful livewire rich text editor component built top of Quill.",
+  "keywords": [
+    "livewire",
+    "editor"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Dasun Tharanga",
+      "email": "hello@dasun.dev",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^8.1",
+    "livewire/livewire": "^3.0",
+    "spatie/laravel-package-tools": "^1.16"
+  },
+  "require-dev": {
+    "larastan/larastan": "^2.0",
+    "laravel/pint": "^1.13",
+    "orchestra/testbench": "^8.0",
+    "pestphp/pest": "^2.30"
+  },
+  "autoload": {
+    "psr-4": {
+      "Dasundev\\LivewireQuillTextEditor\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Dasundev\\LivewireQuillTextEditor\\Tests\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/pest",
+    "pint": "vendor/bin/pint --dirty",
+    "analyse": "vendor/bin/phpstan analyse"
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Dasundev\\LivewireQuillTextEditor\\LivewireQuillTextEditorServiceProvider"
+      ]
+    }
+  }
+}
