@@ -11,12 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sale', function (Blueprint $table) {
+        Schema::create('product_tran_dtl', function (Blueprint $table) {
             $table->id();
+            $table->string('ref_id')->index();
+            $table->integer('product_id')->index();
+            $table->integer('tran_user_id')->index();
+            $table->string('type')->index();
+            $table->double('quantity')->default(0);
+            $table->double('rate')->default(0);
+            $table->double('total')->default(0);
+            $table->string('ref_memo')->index();
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->timestamps();
-
         });
     }
 
@@ -25,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sale');
+        Schema::dropIfExists('product_tran_dtl');
     }
 };

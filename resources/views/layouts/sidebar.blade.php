@@ -24,6 +24,7 @@
             </a>
             <ul class="collapse list-unstyled
         {{ request()->routeIs('company') ? 'show' : ' ' }}
+        {{ request()->routeIs('branch') ? 'show' : ' ' }}
         {{ request()->routeIs('user') ? 'show' : ' ' }}
         {{ request()->routeIs('user-create') ? 'show' : ' ' }}
 
@@ -84,6 +85,12 @@
             </a>
             <ul class="collapse list-unstyled
         {{ request()->routeIs('brand') ? 'show' : ' ' }}
+        {{ request()->routeIs('category') ? 'show' : ' ' }}
+        {{ request()->routeIs('unit') ? 'show' : ' ' }}
+        {{ request()->routeIs('product') ? 'show' : ' ' }}
+        {{ request()->routeIs('product-create') ? 'show' : ' ' }}
+        {{ request()->routeIs('product-edit') ? 'show' : ' ' }}
+        {{-- {{ request()->routeIs('product-details') ? 'show' : ' ' }} --}}
 
 
         " id="productSubmenu">
@@ -97,6 +104,12 @@
                 </li>
                 <li class="{{ request()->routeIs('unit') ? 'active' : ' ' }}">
                     <a class="list" wire:navigate href="{{ route('unit') }}"> - Unit</a>
+                </li>
+                <li class="{{ request()->routeIs('product') ? 'active' : ' ' }}">
+                    <a class="list" wire:navigate href="{{ route('product') }}"> - Product</a>
+                </li>
+                <li class="{{ request()->routeIs('product-create') ? 'active' : ' ' }}">
+                    <a class="list" wire:navigate href="{{ route('product-create') }}"> - Add new product</a>
                 </li>
             </ul>
         </li>

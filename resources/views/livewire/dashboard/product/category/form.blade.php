@@ -11,7 +11,7 @@
     <form wire:submit="@if($editForm) update @else store @endif" action="">
         <div ">
             <x-input required_mark='' wire:model='state.name' name='name' type='text'
-                label='Unit name' />
+                label='Category name' />
         </div>
         <div class="mt-4 d-flex justify-content-center">
             <button class="btn btn-primary">Save</button>

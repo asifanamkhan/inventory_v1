@@ -16,6 +16,9 @@ use App\Livewire\Dashboard\People\Supplier\SupplierCreate;
 use App\Livewire\Dashboard\People\Supplier\SupplierEdit;
 use App\Livewire\Dashboard\Product\Brand\Brand;
 use App\Livewire\Dashboard\Product\Category\Category;
+use App\Livewire\Dashboard\Product\Product\Product;
+use App\Livewire\Dashboard\Product\Product\ProductCreate;
+use App\Livewire\Dashboard\Product\Product\ProductEdit;
 use App\Livewire\Dashboard\Product\Unit\ProductUnit;
 
 Livewire::setUpdateRoute(function ($handle) {
@@ -47,20 +50,10 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->group(function () {
     Route::get('category', Category::class)->name('category');
     Route::get('unit', ProductUnit::class)->name('unit');
 
+    Route::get('product', Product::class)->name('product');
+    Route::get('product/create', ProductCreate::class)->name('product-create');
+    Route::get('product/{id}/edit', ProductEdit::class)->name('product-edit');
+
+
 
 });
-
-
-
-
-// Route::get('test', function () {
-//     $data = DB::select("
-//     SELECT account_code, parent_code, LEVEL as depth
-//     FROM ACC_CHART_OF_ACCOUNTS
-//     START WITH parent_code IS NULL
-//     CONNECT BY PRIOR account_code = parent_code
-//     ORDER SIBLINGS BY parent_code
-//     ");
-
-//     dd($data);
-// });
