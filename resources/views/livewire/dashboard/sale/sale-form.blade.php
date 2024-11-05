@@ -33,12 +33,23 @@
 
     <form action="" wire:submit='save'>
         <div class="row" x-data="{edit : false}">
-            <div class="col-md-4">
+            <div class="col-md-2">
                 <x-input required_mark='true' wire:model='state.date' name='date' type='date'
                     label='Sale date' />
             </div>
-
-            <div class="col-md-4">
+            <div class="col-md-2">
+                <div class="form-group mb-3">
+                    <label for="">Sale type<span style="color: red"> * </span></label>
+                    <select wire:change='saleTypeChange' wire:model='state.sale_type' class="form-select" id='sale_type'>
+                        <option value="1">Product wise</option>
+                        <option value="2">Lot wise</option>
+                    </select>
+                    @error('status')
+                    <small class="form-text text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+            </div>
+            <div class="col-md-2">
                 <div class="form-group mb-3">
                     <label for="">Status<span style="color: red"> * </span></label>
                     <select wire:model='state.status' class="form-select" id='status'>
@@ -54,7 +65,7 @@
                     @enderror
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="d-flex align-items-center">
                     <div style="width: 90%">
                         <div class="form-group mb-3" wire:ignore>
@@ -79,6 +90,43 @@
                 @error('customer_id')
                 <small class="form-text text-danger">{{ $message }}</small>
                 @enderror
+            </div>
+            <div class="col-md-3">
+                <div class="form-group mb-3">
+                    <label for=""> Purchase no search </label>
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:10%; border: 1px solid #DFE2E6;padding: 5px;border-radius: 4px;">
+                            <i style="font-size: 16px" class="fa fa-barcode"></i>
+                        </div>
+                        <div class="position-relative" @click.away="edit = false" style="width: 90%">
+                            <input autocomplete="off" autofocus='true'
+                                placeholder="purchase memo no" @input="edit = true"
+                                 wire:model.live.debounce.500ms='psearch'
+                                type='text' class="form-control">
+
+                            <div class="position-absolute w-full"
+                                style="width:100%; max-height: 250px; overflow-y:scroll; z-index: 1000">
+                                @if (count($resultPurchase) > 0)
+                                <div x-show="edit === true" class="search__container">
+                                    @forelse ($resultPurchase as $pk => $result)
+                                    <p class="productRow" wire:click='prSearchRowSelect({{ $pk }})' wire:key='{{ $pk }}'
+                                        @click="edit = false"
+                                        style="@if($searchSelect === $pk) background: #1e418685; @endif">
+                                        {{ $result->memo_no }}
+                                            @if (@$result->supplier_name)
+                                            - {{ $result->supplier_name }}
+                                            @endif
+                                    </p>
+                                    @empty
+                                    <p>No product</p>
+                                    @endforelse
+
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
 

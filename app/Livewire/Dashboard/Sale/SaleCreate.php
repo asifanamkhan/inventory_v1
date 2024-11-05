@@ -36,6 +36,7 @@ class SaleCreate extends Component
                     'ref_id' => $tran_id,
                     'ref_memo' => $sale->memo_no,
                     'type' => 'sl',
+                    'lot_ref_memo' => $formData['purchase_memo_no'],
                     'tran_user_id' => $formData['state']['customer_id'],
                 ]);
             }

@@ -148,4 +148,8 @@ class PurchaseController extends Controller
         ));
         return $pdf->stream('purchase-invoice.pdf');
     }
+
+    public function purchaseMemoSearch() {
+        return ['id' => 1, 'text' => 'asie'];
+    }
 }

@@ -29,6 +29,7 @@ return new class extends Migration
             $table->integer('tran_user_id')->nullable()->index();
             $table->string('ref_memo')->index();
             $table->string('return_ref_memo')->nullable()->index();
+            $table->string('lot_ref_memo')->nullable();
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->timestamps();

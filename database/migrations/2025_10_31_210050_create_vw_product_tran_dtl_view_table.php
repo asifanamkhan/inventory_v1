@@ -23,6 +23,7 @@ return new class extends Migration
                 END AS related_party_name,
                 prod.name AS product_name,
                 prod.code AS product_code,
+                prod.barcode AS product_barcode,
                 prod.variant_description AS variant_description,
                 b.name AS branch_name
             FROM

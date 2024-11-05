@@ -18,13 +18,14 @@ class SaleForm extends Component
     public $sale_id;
     public $document = [];
     public $paymentState = [];
-    public $customers, $productsearch, $payment_methods;
+    public $customers, $productsearch, $psearch, $payment_methods;
     public $resultProducts = [];
+    public $resultPurchase = [];
     public $saleCart = [];
     public $saleCheck = [];
     public $searchSelect = -1;
     public $countProduct = 0;
-    public $pay_amt, $due, $action;
+    public $pay_amt, $due, $action, $purchase_memo_no;
 
 
     public function customersAll()
@@ -40,29 +41,55 @@ class SaleForm extends Component
         return $this->payment_methods = PaymentMethod::$methods;
     }
 
+    public function saleTypeChange(){
+        $this->resultPurchase = [];
+        $this->saleCart = [];
+        $this->saleCheck = [];
+        $this->purchase_memo_no = '';
+        $this->psearch = '';
+ 
+    }
+
+    public function updatedPsearch()
+    {
+
+        $result = DB::table('vw_purchase as p')
+            ->where('memo_no', $this->psearch)
+            ->get()
+            ->toArray();
+
+        if ($result) {
+            $this->purchase_memo_no = $this->psearch;
+            $this->resultPurchase = [];
+            $this->saleCart = [];
+            $this->saleCheck = [];
+        } else {
+            $this->resultPurchase = DB::table('vw_purchase as p')
+                ->where(DB::raw('lower(p.memo_no)'), 'like', '%' . strtolower($this->productsearch) . '%')
+                ->orWhere('p.supplier_name', 'like', '%' . $this->productsearch . '%')
+                ->get()
+                ->toArray();
+        }
+    }
+
+    public function prSearchRowSelect($key)
+    {
+        $this->purchase_memo_no = $this->resultPurchase[$key]->memo_no;
+        $this->psearch = $this->resultPurchase[$key]->memo_no;
+        $this->saleCart = [];
+        $this->saleCheck = [];
+        $this->resultPurchase = [];
+
+    }
+
     public function updatedProductsearch()
     {
         if ($this->productsearch) {
-
-            $result = DB::table('vw_product_info as p')
-                ->where('barcode', $this->productsearch)
-                ->get()
-                ->toArray();
-
-            if ($result) {
-                $this->resultProducts = $result;
-                $this->resultAppend(0);
+            if ($this->state['sale_type'] == 1) {
+                $this->productWiseSearch();
             } else {
-
-                $this->resultProducts = DB::table('vw_product_info as p')
-                    ->where(DB::raw('lower(p.name)'), 'like', '%' . strtolower($this->productsearch) . '%')
-                    ->orWhere('p.code', 'like', '%' . $this->productsearch . '%')
-                    ->orWhere('p.barcode', 'like', '%' . $this->productsearch . '%')
-                    ->get()
-                    ->toArray();
+                $this->lotWiseSearch();
             }
-
-            $this->searchSelect = -1;
         } else {
             $this->resetProductSearch();
         }
@@ -149,6 +176,7 @@ class SaleForm extends Component
             $this->state['total'] = 0;
             $this->state['qty'] = 0;
             $this->state['status'] = 1;
+            $this->state['sale_type'] = 2;
             $this->state['date'] = Carbon::now()->toDateString();
             $this->paymentState['pay_mode'] = 1;
         }
@@ -183,6 +211,7 @@ class SaleForm extends Component
 
     public function resultAppend($key)
     {
+        // dd($this->resultProducts);
         $search = @$this->resultProducts[$key]->product_id;
 
         if (!$search) {
@@ -197,7 +226,7 @@ class SaleForm extends Component
         }
 
         $valid = in_array($search, $this->saleCheck);
-        if($valid){
+        if ($valid) {
             $this->resetProductSearch();
             session()->flash('error', 'Product already added to cart');
             return 0;
@@ -206,6 +235,7 @@ class SaleForm extends Component
         $this->saleCheck[] = $search;
         $pricing = $this->resultProducts[$key];
         $line_total = (float)$pricing->sale_price;
+
         $this->saleCart[] = [
             'name' => $pricing->name,
             'variant_description' => $pricing->variant_description,
@@ -213,13 +243,12 @@ class SaleForm extends Component
             'line_total' => $line_total,
             'qty' => 1,
             'product_id' => $search,
-            'stock' => $pricing->stock,
+            'stock' => $stock,
         ];
 
         $this->grandCalculation();
         $this->productsearch = '';
         $this->resetProductSearch();
-
     }
 
     public function hideDropdown()
@@ -247,7 +276,7 @@ class SaleForm extends Component
     {
 
         $stock = (float)$this->saleCart[$key]['stock'] ?? 0;
-        if((float)$this->saleCart[$key]['qty'] > $stock){
+        if ((float)$this->saleCart[$key]['qty'] > $stock) {
             session()->flash('error', "Product has only $stock stock available");
             (float)$this->saleCart[$key]['qty'] = $stock;
         }
@@ -316,9 +345,58 @@ class SaleForm extends Component
                 'saleCart' => $this->saleCart,
                 'pay_amt' => $this->pay_amt,
                 'paymentState' => $this->paymentState,
+                'purchase_memo_no' => $this->purchase_memo_no,
             ]);
         } else {
             session()->flash('error', '*At least one product need to added');
+        }
+    }
+
+    public function productWiseSearch()
+    {
+        $result = DB::table('vw_product_info as p')
+            ->where('barcode', $this->productsearch)
+            ->get()
+            ->toArray();
+
+        if ($result) {
+            $this->resultProducts = $result;
+            $this->resultAppend(0);
+        } else {
+
+            $this->resultProducts = DB::table('vw_product_info as p')
+                ->where(DB::raw('lower(p.name)'), 'like', '%' . strtolower($this->productsearch) . '%')
+                ->orWhere('p.code', 'like', '%' . $this->productsearch . '%')
+                ->orWhere('p.barcode', 'like', '%' . $this->productsearch . '%')
+                ->get()
+                ->toArray();
+        }
+
+        $this->searchSelect = -1;
+    }
+
+    public function lotWiseSearch()
+    {
+        if ($this->purchase_memo_no) {
+            $result = DB::table('vw_product_stock_by_purchase as p')
+                ->where('p.memo_no', $this->purchase_memo_no)
+                ->where('p.barcode', $this->productsearch)
+                ->get(['p.current_stock as stock', 'p.*'])
+                ->toArray();
+
+            if ($result) {
+                $this->resultProducts = $result;
+                $this->resultAppend(0);
+            } else {
+                // dd($this->purchase_memo_no);
+                $this->resultProducts = DB::table('vw_product_stock_by_purchase as p')
+                    ->where('p.memo_no', $this->purchase_memo_no)
+                    ->where(DB::raw('lower(p.name)'), 'like', '%' . strtolower($this->productsearch) . '%')
+                    ->get(['p.current_stock as stock', 'p.*'])
+                    ->toArray();
+            }
+
+            $this->searchSelect = -1;
         }
     }
 

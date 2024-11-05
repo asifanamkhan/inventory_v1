@@ -18,7 +18,7 @@ class PurchaseEdit extends Component
     #[On('updatePurchase')]
     public function savePurchase($formData)
     {
-        // dd($formData);
+        
         DB::beginTransaction();
         try {
 
@@ -29,12 +29,12 @@ class PurchaseEdit extends Component
             $formData['state']['due'] = (float)$formData['state']['total'] - (float)$purchase->paid;
             $formData['state']['paid'] = $purchase->paid;
 
-            $tran_id = DB::table('purchase')
+            DB::table('purchase')
                 ->where('id', $this->purchase_id)
                 ->update($formData['state']);
 
             $purchase = DB::table('purchase')
-                ->where('id', $tran_id)
+                ->where('id', $this->purchase_id)
                 ->first();
 
             DB::table('product_tran_dtl')

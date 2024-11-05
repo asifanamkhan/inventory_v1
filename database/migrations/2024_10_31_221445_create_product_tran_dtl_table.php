@@ -23,6 +23,7 @@ return new class extends Migration
             $table->double('total')->default(0);
             $table->string('ref_memo')->index();
             $table->string('return_ref_memo')->nullable();
+            $table->string('lot_ref_memo')->nullable();
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->timestamps();

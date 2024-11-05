@@ -86,8 +86,4 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->group(function () {
     Route::get('sale/{sale_id}/details', SaleDetails::class)->name('sale-details');
     Route::get('sale-invoice/{sale_id}', [SaleController::class, 'invoice'])->name('sale-invoice');
 
-
-
-
-
 });

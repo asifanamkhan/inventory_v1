@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('date');
             $table->string('memo_no')->unique();
             $table->integer('customer_id');
+            $table->integer('sale_type')->default(1);
             $table->integer('branch_id');
             $table->double('shipping')->nullable();
             $table->double('qty')->nullable();

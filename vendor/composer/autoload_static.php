@@ -202,8 +202,8 @@ class ComposerStaticInitd84a53eceaa5648f2b97a0da83f1f878
         ),
         'Yajra\\' => 
         array (
-            0 => __DIR__ . '/..' . '/yajra/laravel-pdo-via-oci8/src',
-            1 => __DIR__ . '/..' . '/yajra/laravel-oci8/src',
+            0 => __DIR__ . '/..' . '/yajra/laravel-oci8/src',
+            1 => __DIR__ . '/..' . '/yajra/laravel-pdo-via-oci8/src',
         ),
         'Whoops\\' => 
         array (
@@ -613,6 +613,14 @@ class ComposerStaticInitd84a53eceaa5648f2b97a0da83f1f878
         'App\\Livewire\\Dashboard\\Admin\\User\\UserEdit' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/Admin/User/UserEdit.php',
         'App\\Livewire\\Dashboard\\Admin\\User\\UserList' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/Admin/User/UserList.php',
         'App\\Livewire\\Dashboard\\Dashboard' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/Dashboard.php',
+        'App\\Livewire\\Dashboard\\LotSale\\Lot\\LotSaleCreate' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/LotSale/Lot/LotSaleCreate.php',
+        'App\\Livewire\\Dashboard\\LotSale\\Lot\\LotSaleDetails' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/LotSale/Lot/LotSaleDetails.php',
+        'App\\Livewire\\Dashboard\\LotSale\\Lot\\LotSaleEdit' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/LotSale/Lot/LotSaleEdit.php',
+        'App\\Livewire\\Dashboard\\LotSale\\Lot\\LotSaleForm' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/LotSale/Lot/LotSaleForm.php',
+        'App\\Livewire\\Dashboard\\LotSale\\Lot\\Return\\LotSaleReturnCreate' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/LotSale/Lot/Return/LotSaleReturnCreate.php',
+        'App\\Livewire\\Dashboard\\LotSale\\Lot\\Return\\LotSaleReturnDetails' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/LotSale/Lot/Return/LotSaleReturnDetails.php',
+        'App\\Livewire\\Dashboard\\LotSale\\Lot\\Return\\LotSaleReturnEdit' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/LotSale/Lot/Return/LotSaleReturnEdit.php',
+        'App\\Livewire\\Dashboard\\LotSale\\Lot\\Return\\LotSaleReturnForm' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/LotSale/Lot/Return/LotSaleReturnForm.php',
         'App\\Livewire\\Dashboard\\People\\Customer\\Customer' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/People/Customer/Customer.php',
         'App\\Livewire\\Dashboard\\People\\Customer\\CustomerCreate' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/People/Customer/CustomerCreate.php',
         'App\\Livewire\\Dashboard\\People\\Customer\\CustomerDetails' => __DIR__ . '/../..' . '/app/Livewire/Dashboard/People/Customer/CustomerDetails.php',

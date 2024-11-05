@@ -30,14 +30,14 @@ return new class extends Migration
                 s.id AS customer_id,
                 b.name AS branch_name,
                 b.id AS branch_id,
-                COALESCE(SUM(CASE WHEN v.tran_type = 'sl' AND v.cash_type IS NOT NULL THEN v.amount ELSE 0 END), 0) AS paid,
-                COALESCE(SUM(CASE WHEN v.tran_type = 'slrt' AND v.cash_type IS NULL THEN v.amount ELSE 0 END), 0) AS sl_return,
-                (p.total - COALESCE(SUM(CASE WHEN v.tran_type = 'slrt' AND v.cash_type IS NULL THEN v.amount ELSE 0 END), 0))
-                - COALESCE(SUM(CASE WHEN v.tran_type = 'sl' AND v.cash_type IS NOT NULL THEN v.amount ELSE 0 END), 0) AS due
+                COALESCE(SUM(CASE WHEN v.tran_type = 'sl' AND v.voucher_type = 'DR' THEN v.amount ELSE 0 END), 0) AS paid,
+                COALESCE(SUM(CASE WHEN v.tran_type = 'slrt' AND v.voucher_type = 'DR' THEN v.amount ELSE 0 END), 0) AS sl_return,
+                (p.total - COALESCE(SUM(CASE WHEN v.tran_type = 'slrt' AND v.voucher_type = 'DR' THEN v.amount ELSE 0 END), 0))
+                - COALESCE(SUM(CASE WHEN v.tran_type = 'sl' AND v.voucher_type = 'DR' THEN v.amount ELSE 0 END), 0) AS due
             FROM
                 sale p
             LEFT JOIN
-                voucher v ON p.memo_no = v.ref_memo OR p.memo_no = v.return_ref_memo
+                voucher v ON p.memo_no = v.ref_memo
             LEFT JOIN
                 customers s ON p.customer_id = s.id
             LEFT JOIN
