@@ -67,12 +67,6 @@
                 <a wire:navigate href='{{route('customer-create') }}' type="button" class="btn btn-primary">Create new customer</a>
             </div>
 
-
-            {{-- modal --}}
-            {{-- <x-large-modal class='payment'>
-                <livewire:dashboard.people.customer.form>
-            </x-large-modal> --}}
-
         </div>
         <div class="responsive-table" style="font-size: 0.9em !important;">
             <table class="table table-bordered table-hover">

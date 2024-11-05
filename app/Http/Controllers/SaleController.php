@@ -15,37 +15,18 @@ class SaleController extends Controller
     public function invoice($sale_id)
     {
 
-        $mst = DB::table('INV_SALES_MST as p')
-            ->where('p.tran_mst_id', $sale_id)
-            ->leftJoin('INV_CUSTOMER_INFO as s', function ($join) {
-                $join->on('s.customer_id', '=', 'p.customer_id');
-            })
-            ->first([
-                'p.*',
-                's.customer_name as p_name',
-                's.customer_address as address',
-                's.phone_no as phone'
-            ]);
+        $mst = DB::table('vw_sale as p')
+                ->where('p.sale_id', $sale_id)
+                ->leftJoin('customers as s', function ($join) {
+                    $join->on('s.id', '=', 'p.customer_id');
+                })
+                ->first(['p.*', 's.name', 's.address', 's.phone']);
 
 
-        $dtl = DB::table('INV_SALES_DTL as p')
-            ->where('p.tran_mst_id', $sale_id)
-            ->leftJoin('VW_INV_ITEM_DETAILS as pr', function ($join) {
-                $join->on('pr.st_group_item_id', '=', 'p.item_code');
-            })
-            ->get([
-                'p.mrp_rate',
-                'p.vat_amt',
-                'p.tot_payble_amt',
-                'p.item_qty',
-                'p.discount',
-                'p.item_code',
-                'pr.item_name',
-                'pr.color_name',
-                'pr.item_size_name',
-                'pr.vat_amt as p_vat_amt'
-            ]);
-
+        $dtl = DB::table('vw_product_tran_dtl as p')
+            ->where('type', 'pr')
+            ->where('p.ref_id', $sale_id)
+            ->get();
 
 
         $data = [
@@ -57,7 +38,7 @@ class SaleController extends Controller
 
         $pdf_data = [
             'html' => $html,
-            'filename' => 'product.pdf',
+            'filename' => 'sale-invoice.pdf',
         ];
 
         GeneratePdf::generate($pdf_data);

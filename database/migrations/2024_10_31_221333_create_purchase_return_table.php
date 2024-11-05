@@ -14,10 +14,14 @@ return new class extends Migration
     {
         Schema::create('purchase_return', function (Blueprint $table) {
             $table->id();
+            $table->string('date');
             $table->string('memo_no')->unique();
+            $table->string('ref_memo_no')->nullable();
+            $table->string('purchase_id')->nullable();
             $table->integer('supplier_id');
             $table->integer('branch_id');
             $table->double('shipping')->nullable();
+            $table->double('qty')->nullable();
             $table->double('net_total')->default(0);
             $table->double('total')->default(0);
             $table->double('paid')->default(0);
@@ -26,6 +30,7 @@ return new class extends Migration
             $table->string('payment_status');
             $table->integer('status')->default(1);
             $table->text('remarks')->nullable();
+            $table->string('document')->nullable();
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->timestamps();
@@ -43,10 +48,10 @@ return new class extends Migration
                 SET next_number = (
                     SELECT COALESCE(MAX(CAST(SUBSTRING(memo_no, 5, 5) AS UNSIGNED)) + 1, 1)
                     FROM purchase_return
-                    WHERE memo_no LIKE CONCAT("prt-%", "/", current_year) COLLATE utf8mb4_unicode_ci
+                    WHERE memo_no LIKE CONCAT("PRT-%", "/", current_year) COLLATE utf8mb4_unicode_ci
                 );
 
-                SET NEW.memo_no = CONCAT("prt-", LPAD(next_number, 5, "0"), "/", current_year) COLLATE utf8mb4_unicode_ci;
+                SET NEW.memo_no = CONCAT("PRT-", LPAD(next_number, 5, "0"), "/", current_year) COLLATE utf8mb4_unicode_ci;
             END
         ');
     }

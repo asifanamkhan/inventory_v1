@@ -40,10 +40,10 @@ return new class extends Migration
                 SET next_number = (
                     SELECT COALESCE(MAX(CAST(SUBSTRING(user_id, 5, 5) AS UNSIGNED)) + 1, 1)
                     FROM customers
-                    WHERE user_id LIKE CONCAT("cus-%", "/", current_year) COLLATE utf8mb4_unicode_ci
+                    WHERE user_id LIKE CONCAT("CUS-%", "/", current_year) COLLATE utf8mb4_unicode_ci
                 );
 
-                SET NEW.user_id = CONCAT("cus-", LPAD(next_number, 5, "0"), "/", current_year) COLLATE utf8mb4_unicode_ci;
+                SET NEW.user_id = CONCAT("CUS-", LPAD(next_number, 5, "0"), "/", current_year) COLLATE utf8mb4_unicode_ci;
             END
         ');
     }

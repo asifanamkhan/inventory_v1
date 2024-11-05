@@ -35,6 +35,21 @@ class DatabaseSeeder extends Seeder
             'address' => 'house-no-1, road-1, city-1, country-1',
         ]);
 
+        DB::table('brand')->insert([
+            'name' => 'Mama earth',
+            'created_by' => '1',
+        ]);
+
+        DB::table('unit')->insert([
+            'name' => 'piece',
+            'created_by' => '1',
+        ]);
+
+        DB::table('product_category')->insert([
+            'name' => 'facewash',
+            'created_by' => '1',
+        ]);
+
         // User::factory()->create([
         //     'name' => 'Test User',
         //     'email' => 'admin@gmail.com',

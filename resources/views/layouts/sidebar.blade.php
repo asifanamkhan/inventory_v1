@@ -105,12 +105,90 @@
                 <li class="{{ request()->routeIs('unit') ? 'active' : ' ' }}">
                     <a class="list" wire:navigate href="{{ route('unit') }}"> - Unit</a>
                 </li>
-                <li class="{{ request()->routeIs('product') ? 'active' : ' ' }}">
+                <li class="
+                {{ request()->routeIs('product') ? 'active' : ' ' }}
+                {{ request()->routeIs('product-edit') ? 'active' : ' ' }}
+                 ">
                     <a class="list" wire:navigate href="{{ route('product') }}"> - Product</a>
                 </li>
                 <li class="{{ request()->routeIs('product-create') ? 'active' : ' ' }}">
                     <a class="list" wire:navigate href="{{ route('product-create') }}"> - Add new product</a>
                 </li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="#purchaseSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle main-list">
+                <i class="fa-solid fa-cart-shopping"></i> Purchase
+            </a>
+            <ul class="collapse list-unstyled
+            {{ request()->routeIs('purchase') ? 'show' : ' ' }}
+            {{ request()->routeIs('purchase-create') ? 'show' : ' ' }}
+            {{ request()->routeIs('purchase-edit') ? 'show' : ' ' }}
+            {{ request()->routeIs('purchase-details') ? 'show' : ' ' }}
+            {{ request()->routeIs('purchase-return') ? 'show' : ' ' }}
+            {{ request()->routeIs('purchase-return-create') ? 'show' : ' ' }}
+            {{ request()->routeIs('purchase-return-edit') ? 'show' : ' ' }}
+            {{-- {{ request()->routeIs('purchase-return-details') ? 'show' : ' ' }}  --}}
+
+        " id="purchaseSubmenu">
+                <li class="
+                {{ request()->routeIs('purchase') ? 'active' : ' ' }}
+                {{ request()->routeIs('purchase-edit') ? 'active' : ' ' }}
+                {{ request()->routeIs('purchase-details') ? 'active' : ' ' }}
+                 ">
+                    <a class="list" wire:navigate href="{{ route('purchase') }}"> - Purchase list</a>
+                </li>
+                <li class="
+                {{ request()->routeIs('purchase-create') ? 'active' : ' ' }}
+                 ">
+                    <a class="list" wire:navigate href="{{ route('purchase-create') }}"> - Purchase entry</a>
+                </li>
+                <li class="
+                {{ request()->routeIs('purchase-return') ? 'active' : ' ' }}
+                {{ request()->routeIs('purchase-return-create') ? 'active' : ' ' }}
+                {{ request()->routeIs('purchase-return-edit') ? 'active' : ' ' }}
+                {{-- {{ request()->routeIs('purchase-return-details') ? 'active' : ' ' }} --}}
+                 ">
+                    <a class="list" wire:navigate href="{{ route('purchase-return') }}"> - Purchase return</a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#saleSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle main-list">
+                <i class="fa-solid fa-scale-balanced"></i> Sale
+            </a>
+            <ul class="collapse list-unstyled
+            {{ request()->routeIs('sale') ? 'show' : ' ' }}
+            {{ request()->routeIs('sale-create') ? 'show' : ' ' }}
+            {{ request()->routeIs('sale-edit') ? 'show' : ' ' }}
+            {{ request()->routeIs('sale-details') ? 'show' : ' ' }}
+            {{-- {{ request()->routeIs('purchase-return') ? 'show' : ' ' }}
+            {{ request()->routeIs('purchase-return-create') ? 'show' : ' ' }}
+            {{ request()->routeIs('purchase-return-edit') ? 'show' : ' ' }}
+            {{ request()->routeIs('purchase-return-details') ? 'show' : ' ' }} --}}
+
+        " id="saleSubmenu">
+                <li class="
+                {{ request()->routeIs('sale') ? 'active' : ' ' }}
+                {{ request()->routeIs('sale-edit') ? 'active' : ' ' }}
+                {{ request()->routeIs('sale-details') ? 'active' : ' ' }}
+                 ">
+                    <a class="list" wire:navigate href="{{ route('sale') }}"> - Sale list</a>
+                </li>
+                <li class="
+                {{ request()->routeIs('sale-create') ? 'active' : ' ' }}
+                 ">
+                    <a class="list" wire:navigate href="{{ route('sale-create') }}"> - Sale entry</a>
+                </li>
+                {{-- <li class="
+                {{ request()->routeIs('purchase-return') ? 'active' : ' ' }}
+                {{ request()->routeIs('purchase-return-create') ? 'active' : ' ' }}
+                {{ request()->routeIs('purchase-return-edit') ? 'active' : ' ' }}
+                {{ request()->routeIs('purchase-return-details') ? 'active' : ' ' }}
+                 ">
+                    <a class="list" wire:navigate href="{{ route('purchase-return') }}"> - Purchase return</a>
+                </li> --}}
             </ul>
         </li>
 

@@ -14,32 +14,18 @@ class PurchaseController extends Controller
     public function invoice($purchase_id)
     {
 
-        $mst = DB::table('INV_PURCHASE_MST as p')
-                ->where('p.tran_mst_id', $purchase_id)
-                ->leftJoin('INV_SUPPLIER_INFO as s', function ($join) {
-                    $join->on('s.p_code', '=', 'p.p_code');
+        $mst = DB::table('vw_purchase as p')
+                ->where('p.purchase_id', $purchase_id)
+                ->leftJoin('suppliers as s', function ($join) {
+                    $join->on('s.id', '=', 'p.supplier_id');
                 })
-            ->first(['p.*', 's.p_name', 's.address', 's.phone']);
+                ->first(['p.*', 's.name', 's.address', 's.phone']);
 
 
-        $dtl = DB::table('INV_PURCHASE_DTL as p')
-            ->where('p.tran_mst_id', $purchase_id)
-            ->leftJoin('VW_INV_ITEM_DETAILS as pr', function ($join) {
-                $join->on('pr.st_group_item_id', '=', 'p.item_code');
-            })
-            ->get([
-                'p.pr_rate',
-                'p.vat_amt',
-                'p.tot_payble_amt',
-                'p.item_qty',
-                'p.discount',
-                'p.item_code',
-                'p.expire_date',
-                'pr.item_name',
-                'pr.color_name',
-                'pr.item_size_name',
-                'pr.vat_amt as p_vat_amt'
-            ]);
+        $dtl = DB::table('vw_product_tran_dtl as p')
+            ->where('type', 'pr')
+            ->where('p.ref_id', $purchase_id)
+            ->get();
 
 
         $data = [
@@ -51,7 +37,7 @@ class PurchaseController extends Controller
 
         $pdf_data = [
             'html' => $html,
-            'filename' => 'product.pdf',
+            'filename' => 'purchase-invoice.pdf',
         ];
 
         GeneratePdf::generate($pdf_data);
@@ -103,7 +89,7 @@ class PurchaseController extends Controller
         GeneratePdf::generate($pdf_data);
     }
 
-    
+
     public function InvoioceBackup($purchase_id){
         $company = DB::table('HRM_COMPANY_INFO')->first();
         $base64Logo = '';

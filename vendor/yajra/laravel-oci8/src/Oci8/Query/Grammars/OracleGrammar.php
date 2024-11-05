@@ -235,7 +235,7 @@ class OracleGrammar extends Grammar
         $tableName = $this->wrap($this->tablePrefix.$table, true);
         $segments = explode(' ', $table);
         if (count($segments) > 1) {
-            $tableName = $this->wrap($this->tablePrefix.$segments[0]).' '.$segments[1];
+            $tableName = $this->wrap($this->tablePrefix.$segments[0]).' '.$this->tablePrefix.$segments[1];
         }
 
         return $this->getSchemaPrefix().$tableName;
@@ -719,5 +719,27 @@ class OracleGrammar extends Grammar
 
             return 'select '.$values.' from dual';
         })->implode(' union all ');
+    }
+
+    /**
+     * Compile a "where like" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $where
+     * @return string
+     */
+    protected function whereLike(Builder $query, $where)
+    {
+        $where['operator'] = $where['not'] ? 'not like' : 'like';
+
+        if ($where['caseSensitive']) {
+            return $this->whereBasic($query, $where);
+        }
+
+        $value = $this->parameter($where['value']);
+
+        $operator = str_replace('?', '??', $where['operator']);
+
+        return 'upper('.$this->wrap($where['column']).') '.$operator.' upper('.$value.')';
     }
 }

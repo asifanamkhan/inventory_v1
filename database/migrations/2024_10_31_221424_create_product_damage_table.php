@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('product_damage', function (Blueprint $table) {
             $table->id();
+            $table->string('date');
             $table->string('memo_no')->unique();
             $table->integer('branch_id');
             $table->double('net_total')->default(0);
@@ -39,10 +40,10 @@ return new class extends Migration
                 SET next_number = (
                     SELECT COALESCE(MAX(CAST(SUBSTRING(memo_no, 5, 5) AS UNSIGNED)) + 1, 1)
                     FROM product_damage
-                    WHERE memo_no LIKE CONCAT("damage-%", "/", current_year) COLLATE utf8mb4_unicode_ci
+                    WHERE memo_no LIKE CONCAT("DMG-%", "/", current_year) COLLATE utf8mb4_unicode_ci
                 );
 
-                SET NEW.memo_no = CONCAT("damage-", LPAD(next_number, 5, "0"), "/", current_year) COLLATE utf8mb4_unicode_ci;
+                SET NEW.memo_no = CONCAT("DMG-", LPAD(next_number, 5, "0"), "/", current_year) COLLATE utf8mb4_unicode_ci;
             END
         ');
     }

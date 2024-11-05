@@ -19,7 +19,7 @@ class CustomTcPDFHF extends TCPDF
         $this->SetFont('helvetica', 'I', 8);
 
         // Left-aligned text
-        $leftText = 'Design & Developed By: InfoTech IT Solutions, www.infotechitsolutionsbd.com ';
+        $leftText = 'Design & Developed By: Asif Anam Khan, 01643734728 ';
         $this->Cell(0, 10, $leftText, 0, 0, 'L'); // 'L' for left alignment
         // Page number
         $pageText = 'Page ' . $this->getAliasNumPage() . ' of ' . $this->getAliasNbPages();
@@ -31,7 +31,7 @@ class CustomTcPDFHF extends TCPDF
     public function Header()
     {
 
-        $company = DB::table('HRM_COMPANY_INFO')->first();
+        $company = DB::table('company')->first();
         $logo = '';
 
 

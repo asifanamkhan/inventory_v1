@@ -19,7 +19,8 @@ return new class extends Migration
                 p.u_code,
                 p.code,
                 p.name,
-                p.varient,
+                p.variant_type,
+                p.variant_description,
                 p.images,
                 p.barcode,
                 p.alert_qty,
@@ -34,7 +35,7 @@ return new class extends Migration
                 p.purchase_price,
                 p.sale_price,
                 COALESCE(SUM(CASE
-                    WHEN ps.type IN ('pr', 'slrt') THEN ps.quantity
+                    WHEN ps.type IN ('pr', 'slrt','op') THEN ps.quantity
                     WHEN ps.type IN ('sl', 'prt', 'damage') THEN -ps.quantity
                     ELSE 0
                 END), 0) AS stock
@@ -53,8 +54,8 @@ return new class extends Migration
             GROUP BY
                 p.id, p.u_code, p.code, p.name, c.name, c.id,
                 b.name, b.id,  br.name, br.id, u.name, u.id,
-                p.purchase_price, p.sale_price, p.varient, p.barcode,
-                p.images, p.alert_qty
+                p.purchase_price, p.sale_price, p.variant_type,
+                p.variant_description, p.barcode, p.images, p.alert_qty
         ");
     }
 

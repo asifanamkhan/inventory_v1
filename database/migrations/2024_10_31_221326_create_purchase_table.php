@@ -14,20 +14,23 @@ return new class extends Migration
     {
         Schema::create('purchase', function (Blueprint $table) {
             $table->id();
+            $table->string('date');
             $table->string('memo_no')->unique();
             $table->integer('supplier_id');
             $table->integer('branch_id');
             $table->double('shipping')->nullable();
+            $table->double('qty')->nullable();
             $table->double('net_total')->default(0);
             $table->double('total')->default(0);
             $table->double('paid')->default(0);
             $table->double('due')->default(0);
             $table->double('tax')->default(0);
             $table->double('discount')->default(0);
-            $table->double('return')->default(0);
+            $table->double('pr_return')->default(0);
             $table->string('payment_status');
             $table->integer('status')->default(1);
             $table->text('remarks')->nullable();
+            $table->string('document')->nullable();
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->timestamps();
@@ -45,10 +48,10 @@ return new class extends Migration
                 SET next_number = (
                     SELECT COALESCE(MAX(CAST(SUBSTRING(memo_no, 5, 5) AS UNSIGNED)) + 1, 1)
                     FROM purchase
-                    WHERE memo_no LIKE CONCAT("pr-%", "/", current_year) COLLATE utf8mb4_unicode_ci
+                    WHERE memo_no LIKE CONCAT("PR-%", "/", current_year) COLLATE utf8mb4_unicode_ci
                 );
 
-                SET NEW.memo_no = CONCAT("pr-", LPAD(next_number, 5, "0"), "/", current_year) COLLATE utf8mb4_unicode_ci;
+                SET NEW.memo_no = CONCAT("PR-", LPAD(next_number, 5, "0"), "/", current_year) COLLATE utf8mb4_unicode_ci;
             END
         ');
     }

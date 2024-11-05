@@ -25,8 +25,10 @@ return new class extends Migration
             $table->integer('brand_id');
             $table->integer('status')->default(0);
             $table->integer('alert_qty')->default(5);
-            $table->text('images')->default(0);
-            $table->text('varient')->default(0);
+            $table->integer('open_stock')->default(0);
+            $table->string('images')->default(0);
+            $table->integer('variant_type')->default(0);
+            $table->text('variant_description')->nullable();
             $table->integer('purchase_price')->default(0);
             $table->integer('sale_price')->default(0);
             $table->integer('tax')->default(0);
@@ -48,10 +50,10 @@ return new class extends Migration
                 SET next_number = (
                     SELECT COALESCE(MAX(CAST(SUBSTRING(code, 5, 5) AS UNSIGNED)) + 1, 1)
                     FROM product
-                    WHERE code LIKE CONCAT("pro-%", "/", current_year) COLLATE utf8mb4_unicode_ci
+                    WHERE code LIKE CONCAT("PRO-%", "/", current_year) COLLATE utf8mb4_unicode_ci
                 );
 
-                SET NEW.code = CONCAT("pro-", LPAD(next_number, 5, "0"), "/", current_year) COLLATE utf8mb4_unicode_ci;
+                SET NEW.code = CONCAT("PRO-", LPAD(next_number, 5, "0"), "/", current_year) COLLATE utf8mb4_unicode_ci;
             END
         ');
     }

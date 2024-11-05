@@ -22,7 +22,7 @@ class Product extends Component
         $products = DB::table('vw_product_info as p');
 
         $products
-            ->distinct('u_code')
+            ->groupBy('u_code')
             ->orderBy('u_code', 'DESC')
             ->select(['p.*']);
 
@@ -34,7 +34,8 @@ class Product extends Component
                 ->orWhere(DB::raw('lower(c.catagory_name)'), 'like', '%' . strtolower($this->search) . '%');
         }
 
-
+        // $p = $products->get();
+        // dd($p);
         return $products->paginate($this->pagination);
     }
 

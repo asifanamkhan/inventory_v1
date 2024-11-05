@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\File;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class Form extends Component
@@ -17,13 +18,16 @@ class Form extends Component
 
     public function mount($customer_id = null)
     {
-        $this->state = (array)DB::table('customers')
-            ->where('id', $customer_id)
-            ->first();
+        if ($customer_id) {
+            $this->state = (array)DB::table('customers')
+                ->where('id', $customer_id)
+                ->first();
 
-        if (@$this->state['photo']) {
-            $this->editPhotos = json_decode($this->state['photo']);
+            if (@$this->state['photo']) {
+                $this->editPhotos = json_decode($this->state['photo']);
+            }
         }
+        $this->state['branch_id'] = 1;
     }
 
 
@@ -45,12 +49,14 @@ class Form extends Component
         }
 
         if ($this->customer_id) {
+            $this->state['updated_by'] = Auth::user()->id;
             DB::table('customers')
                 ->where('id', $this->state['id'])
                 ->update($this->state);
 
             session()->flash('status', 'Customer updated successfully.');
         } else {
+            $this->state['created_by'] = Auth::user()->id;
             DB::table('customers')
                 ->insert($this->state);
 

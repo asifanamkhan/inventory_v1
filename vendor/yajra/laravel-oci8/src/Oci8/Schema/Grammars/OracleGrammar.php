@@ -203,7 +203,7 @@ class OracleGrammar extends Grammar
      */
     public function compileColumnExists($database, $table)
     {
-        return "select column_name from all_tab_cols where upper(owner) = upper('{$database}') and upper(table_name) = upper('{$table}')";
+        return "select column_name from all_tab_cols where upper(owner) = upper('{$database}') and upper(table_name) = upper('{$table}') order by column_id";
     }
 
     /**
@@ -269,13 +269,10 @@ class OracleGrammar extends Grammar
      */
     public function compileAdd(Blueprint $blueprint, Fluent $command)
     {
-        $columns = implode(', ', $this->getColumns($blueprint));
-
-        $sql = 'alter table '.$this->wrapTable($blueprint)." add ( $columns";
-
-        $sql .= (string) $this->addPrimaryKeys($blueprint);
-
-        return $sql .= ' )';
+        return sprintf('alter table %s add ( %s )',
+            $this->wrapTable($blueprint),
+            $this->getColumn($blueprint, $command->column)
+        );
     }
 
     /**
@@ -920,25 +917,25 @@ class OracleGrammar extends Grammar
     {
         $columns = [];
 
-        foreach ($blueprint->getChangedColumns() as $column) {
-            $changes = [$this->getType($column).$this->modifyCollate($blueprint, $column)];
+        $column = $command->column;
 
-            foreach ($this->modifiers as $modifier) {
-                if ($modifier === 'Collate') {
-                    continue;
-                }
+        $changes = [$this->getType($column).$this->modifyCollate($blueprint, $column)];
 
-                if (method_exists($this, $method = "modify{$modifier}")) {
-                    $constraints = (array) $this->{$method}($blueprint, $column);
-
-                    foreach ($constraints as $constraint) {
-                        $changes[] = $constraint;
-                    }
-                }
+        foreach ($this->modifiers as $modifier) {
+            if ($modifier === 'Collate') {
+                continue;
             }
 
-            $columns[] = 'modify '.$this->wrap($column).' '.implode(' ', array_filter(array_map('trim', $changes)));
+            if (method_exists($this, $method = "modify{$modifier}")) {
+                $constraints = (array) $this->{$method}($blueprint, $column);
+
+                foreach ($constraints as $constraint) {
+                    $changes[] = $constraint;
+                }
+            }
         }
+
+        $columns[] = 'modify '.$this->wrap($column).' '.implode(' ', array_filter(array_map('trim', $changes)));
 
         return 'alter table '.$this->wrapTable($blueprint).' '.implode(' ', $columns);
     }
@@ -975,5 +972,77 @@ class OracleGrammar extends Grammar
             $this->quoteString($database),
             $this->quoteString($table)
         );
+    }
+
+    /**
+     * Compile the command to enable foreign key constraints.
+     *
+     * @param  string  $owner
+     * @return string
+     */
+    public function compileEnableForeignKeyConstraints(string $owner): string
+    {
+        return $this->compileForeignKeyConstraints($owner, 'enable');
+    }
+
+    /**
+     * Compile the command to disable foreign key constraints.
+     *
+     * @param  string  $owner
+     * @return string
+     */
+    public function compileDisableForeignKeyConstraints(string $owner): string
+    {
+        return $this->compileForeignKeyConstraints($owner, 'disable');
+    }
+
+    /**
+     * Compile foregin key constraints with enable or disable action.
+     *
+     * @param  string  $owner
+     * @param  string  $action
+     * @return string
+     */
+    public function compileForeignKeyConstraints(string $owner, string $action): string
+    {
+        return 'begin
+            for s in (
+                SELECT \'alter table \' || c2.table_name || \' '.$action.' constraint \' || c2.constraint_name as statement
+                FROM all_constraints c
+                         INNER JOIN all_constraints c2
+                                    ON (c.constraint_name = c2.r_constraint_name AND c.owner = c2.owner)
+                         INNER JOIN all_cons_columns col
+                                    ON (c.constraint_name = col.constraint_name AND c.owner = col.owner)
+                WHERE c2.constraint_type = \'R\'
+                  AND c.owner = \''.strtoupper($owner).'\'
+                )
+                loop
+                    execute immediate s.statement;
+                end loop;
+        end;';
+    }
+
+    /**
+     * Compile the query to determine the tables.
+     *
+     * @param  string  $owner
+     * @return string
+     */
+    public function compileTables(string $owner): string
+    {
+        return 'select lower(all_tab_comments.table_name)  as "name",
+                lower(all_tables.owner) as "schema",
+                sum(user_segments.bytes) as "size",
+                all_tab_comments.comments as "comments",
+                (select lower(value) from nls_database_parameters where parameter = \'NLS_SORT\') as "collation"
+            from all_tables
+                join all_tab_comments on all_tab_comments.table_name = all_tables.table_name
+                left join user_segments on user_segments.segment_name = all_tables.table_name
+            where all_tables.owner = \''.strtoupper($owner).'\'
+                and all_tab_comments.owner = \''.strtoupper($owner).'\'
+                and all_tab_comments.table_type in (\'TABLE\')
+            group by all_tab_comments.table_name, all_tables.owner, all_tables.num_rows,
+                all_tables.avg_row_len, all_tables.blocks, all_tab_comments.comments
+            order by all_tab_comments.table_name';
     }
 }
