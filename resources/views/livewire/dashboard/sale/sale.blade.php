@@ -4,7 +4,7 @@
     </div>
     <div style="display: flex; justify-content: space-between; align-items:center">
         <h3 style="padding: 0px 5px 10px 5px;">
-            <i class="fa-solid fa-cart-shopping"></i> Sale
+            <i class="fa-solid fa-scale-balanced"></i> Sale
         </h3>
         <nav aria-label="breadcrumb" style="padding-right: 5px">
             <ol class="breadcrumb">
@@ -82,7 +82,7 @@
 
 
             <div class="col-md-8" style="text-align: right">
-                <a wire:navigate href='{{route('sale-create') }}' type="button" class="btn btn-primary">Create new
+                <a wire:navigate href='{{route('lot-sale-create') }}' type="button" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> New
                     sale</a>
             </div>
 
@@ -230,35 +230,26 @@
                         </td>
                         <td style="text-align: right">
                             @php
-                            $due = App\Service\Payment::dueAmount($sale->total, $sale->sl_return,
-                            $sale->paid);
-                            $due_total += (float)$due;
+                                $due_total += (float)$sale->total_due;
                             @endphp
-                            {{ number_format($due, 2, '.', '') }}
+                            {{ number_format($sale->total_due, 2, '.', '') }}
                         </td>
-                        <td style="text-align: right">
+                        <td style="text-align: right; font-size: 1.1em;">
                             <div class="d-flex justify-content-center align-items-center">
-                                <span style="
-                                font-size: 0.9em;
-                                @if($sale->payment_status == 'PAID')
-                                background: #D4EDDA;
-                                color: #155724;
+                                @if ($sale->total_due > 0)
+                                    <span class="badge" style="background: #DC3545;">DUE</span>
+                                @elseif ($sale->total_due == 0)
+                                    <span class="badge" style="background: #139C49;">PAID</span>
                                 @else
-                                background: #F8D7DA;
-                                color: #721c24;
+                                    <span class="badge" style="background: #DC3545;">OVER DUE</span>
                                 @endif
-                                " class="badge badge-pill">
-                                    {{ $sale->payment_status }}
-                                </span>
                             </div>
                         </td>
                         <td style="">
                             <div class="dropdown show">
-                                <a class="btn btn-sm btn-primary dropdown-toggle" href="#" role="button"
-                                    id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
-                                    aria-expanded="false">
-                                    Action &nbsp;&nbsp;&nbsp;&nbsp;
-                                </a>
+                                <button style="font-size:12px; border: 1px solid #009DE4 !important" class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Actions
+                                  </button>
 
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                     <a class="dropdown-item"

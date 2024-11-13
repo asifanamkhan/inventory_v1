@@ -14,9 +14,9 @@ return new class extends Migration
     {
         Schema::create('product_damage', function (Blueprint $table) {
             $table->id();
-            $table->string('date');
-            $table->string('memo_no')->unique();
-            $table->integer('branch_id');
+            $table->string('date')->index();
+            $table->string('memo_no')->unique()->index();
+            $table->integer('branch_id')->index();
             $table->double('net_total')->default(0);
             $table->double('total')->default(0);
             $table->double('quantity')->default(0);

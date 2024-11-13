@@ -107,15 +107,14 @@
                 <button class="btn btn-sm btn-primary">
                     @if ($edit) Update @else Pay @endif
                 </button>
-
             </div>
         </form>
-        {{-- <div class="row g-3 mb-3 align-items-center">
-            <div class="col-auto">
+        <div class="row g-3 mb-3 align-items-center">
+            {{-- <div class="col-auto">
                 <input type="text" wire:model.live.debounce.300ms='search' class="form-control"
                     placeholder="search here">
-            </div>
-            <div class="col-auto">
+            </div> --}}
+            {{-- <div class="col-auto">
                 <select class="form-select" wire:model.live='pagination' name="" id="">
                     <option value="5">5</option>
                     <option value="10">10</option>
@@ -123,8 +122,8 @@
                     <option value="50">50</option>
                     <option value="100">100</option>
                 </select>
-            </div>
-        </div> --}}
+            </div> --}}
+        </div>
         <div style="max-height: 500px; overflow-y: scroll" class="responsive-table mt-4" style="font-size: 0.9em !important;">
             <table class="table table-bordered table-hover">
                 <thead>
@@ -158,7 +157,7 @@
                             @endif
                         </td>
                         <td style="text-align: right">{{ number_format($payment->amount, 2, '.','') }}</td>
-                        <td>
+                        <td style="text-align: center">
                             <button wire:click='editPayment({{ $payment->id }})' class="btn btn-sm btn-warning">
                                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20px" height="20px"
                                     viewBox="0 0 50 50">

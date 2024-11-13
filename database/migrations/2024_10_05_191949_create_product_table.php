@@ -14,23 +14,23 @@ return new class extends Migration
     {
         Schema::create('product', function (Blueprint $table) {
             $table->id();
-            $table->string('branch_id');
-            $table->string('name');
+            $table->string('branch_id')->index();
+            $table->string('name')->index();
             $table->string('code')->unique()->index();
-            $table->string('u_code');
+            $table->string('u_code')->index();
             $table->string('barcode')->nullable();
             $table->text('description')->nullable();
-            $table->integer('unit_id');
-            $table->integer('category_id');
-            $table->integer('brand_id');
-            $table->integer('status')->default(0);
-            $table->integer('alert_qty')->default(5);
-            $table->integer('open_stock')->default(0);
+            $table->integer('unit_id')->index();
+            $table->integer('category_id')->index();
+            $table->integer('brand_id')->index();
+            $table->integer('status')->default(0)->index();
+            $table->integer('alert_qty')->default(5)->index();
+            $table->integer('open_stock')->default(0)->index();
             $table->string('images')->default(0);
             $table->integer('variant_type')->default(0);
-            $table->text('variant_description')->nullable();
-            $table->integer('purchase_price')->default(0);
-            $table->integer('sale_price')->default(0);
+            $table->text('variant_description');
+            $table->integer('purchase_price');
+            $table->integer('sale_price');
             $table->integer('tax')->default(0);
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();

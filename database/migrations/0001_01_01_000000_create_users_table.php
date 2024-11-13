@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('user_id');
             $table->string('email')->unique()->index();
             $table->integer('user_type')->index();
-            $table->string('phone')->nullable();
+            $table->string('phone')->nullable()->index();
             $table->string('address')->nullable();
             $table->string('photo')->nullable();
             $table->string('status')->nullable();

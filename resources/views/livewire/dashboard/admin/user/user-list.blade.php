@@ -4,7 +4,7 @@
     </div>
     <div style="display: flex; justify-content: space-between; align-items:center">
         <h3 style="padding: 0px 5px 10px 5px;">
-            <i class="fa-solid fa-cart-shopping"></i> User
+            <i class="fa-solid fa-user"></i> Users
         </h3>
         <nav aria-label="breadcrumb" style="padding-right: 5px">
             <ol class="breadcrumb">
@@ -49,24 +49,11 @@
                 </select>
             </div>
 
-            {{-- <div class="col-auto ">
-                <a class="btn btn-warning">
-                    <i class="fa-solid fa-file-excel"></i>
+            <div class="col-md-8" style="text-align: right">
+                <a wire:navigate href='{{route('user-create') }}' type="button" class="btn btn-sm btn-success">
+                    <i class="fa fa-plus"></i> New user
                 </a>
             </div>
-            <div class="col-auto ">
-                <a class="btn btn-info">
-                    <i class="fa-solid fa-print"></i>
-                </a>
-            </div> --}}
-            <div class="col-md-6">
-
-            </div>
-
-            <div class="col-md-2">
-                <a wire:navigate href='{{route('user-create') }}' type="button" class="btn btn-primary">Create new user</a>
-            </div>
-
 
             {{-- modal --}}
             {{-- <x-large-modal class='payment'>

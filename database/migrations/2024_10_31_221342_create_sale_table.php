@@ -14,12 +14,12 @@ return new class extends Migration
     {
         Schema::create('sale', function (Blueprint $table) {
             $table->id();
-            $table->string('date');
-            $table->string('memo_no')->unique();
-            $table->string('lot_ref_memo')->nullable();
-            $table->integer('customer_id');
+            $table->string('date')->index();
+            $table->string('memo_no')->unique()->index();
+            $table->string('lot_ref_memo')->nullable()->index();
+            $table->integer('customer_id')->index();
             $table->integer('sale_type')->default(1);
-            $table->integer('branch_id');
+            $table->integer('branch_id')->index();
             $table->double('shipping')->nullable();
             $table->double('qty')->nullable();
             $table->double('net_total')->default(0);

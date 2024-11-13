@@ -15,11 +15,11 @@ return new class extends Migration
         Schema::create('purchase_return', function (Blueprint $table) {
             $table->id();
             $table->string('date');
-            $table->string('memo_no')->unique();
-            $table->string('ref_memo_no')->nullable();
-            $table->string('purchase_id')->nullable();
-            $table->integer('supplier_id');
-            $table->integer('branch_id');
+            $table->string('memo_no')->unique()->index();
+            $table->string('ref_memo_no')->nullable()->index();
+            $table->string('purchase_id')->nullable()->index();
+            $table->integer('supplier_id')->index();
+            $table->integer('branch_id')->index();
             $table->double('shipping')->nullable();
             $table->double('qty')->nullable();
             $table->double('net_total')->default(0);

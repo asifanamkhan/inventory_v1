@@ -17,7 +17,7 @@ class PaymentMethod
     ];
 
     public static function tranTypeCheck($prams){
-        return self::$methods[$prams];
+        return @self::$methods[$prams] ?? '';
     }
 
 

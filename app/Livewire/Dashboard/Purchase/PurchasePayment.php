@@ -22,6 +22,7 @@ class PurchasePayment extends Component
     public $purchase_id;
     public $payment_type = 1;
     public $paymentState = [];
+
     public function paymentMethodAll()
     {
         return $this->payment_methods = PaymentMethod::$methods;
@@ -61,8 +62,9 @@ class PurchasePayment extends Component
 
         if ($this->search) {
             $payments
-                ->orwhere(DB::raw('lower(p.voucher_no)'), 'like', '%' . strtolower($this->search) . '%')
-                ->orWhere('p.amount', 'like', '%' . $this->search . '%');
+                ->where(DB::raw('lower(p.voucher_no)'), 'like', '%' . strtolower($this->search) . '%')
+                ->orWhere('p.amount', 'like', '%' . $this->search . '%')
+                ->orWhere('p.date', 'like', '%' . $this->search . '%');
         }
 
         return $payments->paginate($this->pagination);

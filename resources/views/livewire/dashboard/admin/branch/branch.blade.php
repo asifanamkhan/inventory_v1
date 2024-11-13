@@ -4,7 +4,7 @@
     </div>
     <div style="display: flex; justify-content: space-between; align-items:center">
         <h3 style="padding: 0px 5px 10px 5px;">
-            <i class="fa-branchs fa-bandcamp"></i> Branchs</h3>
+            <i class="fas fa-code-branch"></i> Branchs</h3>
         <nav aria-label="breadcrumb" style="padding-right: 5px">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">Admin</a></li>
@@ -31,9 +31,9 @@
             </div>
 
             <div class="col-md-8" style="text-align: right">
-                <button @click="$dispatch('create-product-branch-modal')" type="button" class="btn btn-primary"
+                <button @click="$dispatch('create-product-branch-modal')" type="button" class="btn btn-sm btn-success"
                     data-toggle="modal" data-target="#{{ $event }}">
-                    Create new branch
+                    <i class="fa fa-plus"></i> New branch
                 </button>
             </div>
 

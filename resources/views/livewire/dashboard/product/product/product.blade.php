@@ -4,12 +4,13 @@
     </div>
     <div style="display: flex; justify-content: space-between; align-items:center">
         <h3 style="padding: 0px 5px 10px 5px;">
-            <i class="fa-s fa-bandcamp"></i> Product s</h3>
+            <i class="fa-brands fa-unity"></i> Product s</h3>
         <nav aria-label="breadcrumb" style="padding-right: 5px">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">Product</a></li>
                 <li class="breadcrumb-item active"><a wire:navigate href="{{ route('product') }}"
-                        style="color: #3C50E0">s</a>product</li>
+                        style="color: #3C50E0">
+                    </a>product</li>
             </ol>
         </nav>
     </div>
@@ -30,7 +31,7 @@
                 </select>
             </div>
             <div class="col-md-8" style="text-align: right">
-                <a wire:navigate href='{{route('product-create') }}' type="button" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New product</a>
+                <a wire:navigate href='{{route('product-create') }}' type="button" class="btn btn-sm btn-success"><i class="fa-solid fa-plus"></i> New product</a>
             </div>
         </div>
         <div class="responsive-table">

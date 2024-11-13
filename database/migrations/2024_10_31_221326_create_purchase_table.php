@@ -14,10 +14,10 @@ return new class extends Migration
     {
         Schema::create('purchase', function (Blueprint $table) {
             $table->id();
-            $table->string('date');
-            $table->string('memo_no')->unique();
-            $table->integer('supplier_id');
-            $table->integer('branch_id');
+            $table->string('date')->index();
+            $table->string('memo_no')->unique()->index();
+            $table->integer('supplier_id')->index();
+            $table->integer('branch_id')->index();
             $table->double('shipping')->nullable();
             $table->double('qty')->nullable();
             $table->double('net_total')->default(0);

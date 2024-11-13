@@ -22,17 +22,4 @@ class Payment
         }
     }
 
-    public static function paymentSatus($total, $return, $payment){
-        $cal = (float)$total- ((float)$return + (float)$payment);
-        if($cal > 0){
-            return 'DUE';
-        }else{
-            return 'PAID';
-        }
-    }
-
-    public static function dueAmount($total, $return, $payment){
-        $cal = (float)$total- ((float)$return + (float)$payment);
-        return $cal;
-    }
 }

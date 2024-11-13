@@ -38,7 +38,7 @@ class PurchaseReturnForm extends Component
             $purchase_rt = DB::table('purchase_return')
                 ->where('ref_memo_no', $tran_mst->memo_no)
                 ->first();
-            // dd($tran_mst);
+
             $this->state['net_total'] = 0;
             $this->state['ref_memo_no'] =  $tran_mst->memo_no;
             $this->state['total'] = @$purchase_rt->total ?? 0;;
@@ -48,6 +48,7 @@ class PurchaseReturnForm extends Component
             $this->state['supplier_id'] = $tran_mst->supplier_id;
             $this->state['remarks'] = $tran_mst->remarks;
             $this->state['date'] = Carbon::parse($tran_mst->date)->toDateString();
+            $this->supplier_id = $this->state['supplier_id'];
 
             $resultDtls = DB::table('vw_product_stock_by_purchase as p')
                 ->where('p.memo_no', $tran_mst->memo_no)
@@ -64,7 +65,7 @@ class PurchaseReturnForm extends Component
             foreach ($resultDtls as $resultDtl) {
                 $rate = DB::table('product_tran_dtl')
                     ->where('product_id', $resultDtl->product_id)
-                    ->where('type' ,'pr')
+                    ->where('type', 'pr')
                     ->where('ref_id', $purchase_id)
                     ->first();
 
@@ -119,7 +120,7 @@ class PurchaseReturnForm extends Component
     public function calculation($key)
     {
         $qty = (float)$this->purchaseCart[$key]['return_qty'] ?? 0;
-        if($qty > $this->purchaseCart[$key]['qty']){
+        if ($qty > $this->purchaseCart[$key]['qty']) {
             session()->flash('error', 'Return qty cant bigger than purchase qty');
             $qty = $this->purchaseCart[$key]['qty'];
             $this->purchaseCart[$key]['return_qty'] = $qty;
@@ -171,100 +172,138 @@ class PurchaseReturnForm extends Component
         ])->validate();
 
         if (count($this->purchaseCart) > 0) {
-
-            // dd(
-            //     $this->state,
-            //     $this->paymentState,
-            //     $this->purchaseCart,
-            // );
-
-            $this->state['created_by'] = Auth::user()->id;
-            $this->state['branch_id'] = 1;
-            $this->state['due'] = $this->due ?? 0;
-            $this->state['paid'] = $this->pay_amt ?? 0;
-            $this->state['payment_status'] = Payment::PaymentCheck($this->due);
-
-
-            DB::beginTransaction();
-            try {
-
-                $purchase = DB::table('purchase_return')
-                    ->where('ref_memo_no', $this->state['ref_memo_no'])
-                    ->first();
-
-                if ($purchase) {
-
-                    DB::table('purchase_return')
-                        ->where('ref_memo_no', $this->state['ref_memo_no'])
-                        ->update($this->state);
-                    DB::table('product_tran_dtl')
-                        ->where('type', 'prt')
-                        ->where('ref_id', $purchase->id)
-                        ->delete();
-
-                    DB::table('voucher')
-                        ->where('tran_type', 'prt')
-                        ->where('voucher_type', 'CR')
-                        ->where('return_ref_memo', $purchase->memo_no)
-                        ->update([
-                            'amount' => $this->state['total'],
-                        ]);
-                } else {
-                    $tran_id = DB::table('purchase_return')
-                        ->insertGetId($this->state);
-
-                    $purchase = DB::table('purchase_return')
-                        ->where('id', $tran_id)
-                        ->first();
-
-                    DB::table('voucher')->insert([
-                        'date' => $this->state['date'],
-                        'voucher_type' => 'CR',
-                        'tran_type' => 'prt',
-                        'description' => 'Initial voucher for ' . $purchase->memo_no,
-                        'amount' => $this->state['total'],
-                        'created_by' => Auth::user()->id,
-                        'ref_id' => $tran_id,
-                        'tran_user_id' => $this->supplier_id,
-                        'ref_memo' => $this->state['ref_memo_no'],
-                        'return_ref_memo' => $purchase->memo_no,
-
-                    ]);
-                }
-
-
-                foreach ($this->purchaseCart as $key => $value) {
-                    DB::table('product_tran_dtl')->insert([
-                        'branch_id' => 1,
-                        'product_id' => $value['product_id'],
-                        'quantity' => $value['return_qty'],
-                        'rate' => $value['purchase_price'],
-                        'total' => $value['line_total'],
-                        'created_by' => Auth::user()->id,
-                        'ref_id' => @$tran_id ?? $purchase->id,
-                        'ref_memo' => $this->state['ref_memo_no'],
-                        'return_ref_memo' => $purchase->memo_no,
-                        'type' => 'prt',
-                        'tran_user_id' => $this->supplier_id,
-                    ]);
-                }
-
-
-
-
-
-                DB::commit();
-
-                session()->flash('status', 'Purchase returnd successfully');
-                return $this->redirect(route('purchase-return'), navigate: true);
-            } catch (\Exception $exception) {
-                DB::rollback();
-                session()->flash('error', $exception);
-            }
-        } else {
             session()->flash('error', '*At least one product need to added');
+            return false;
+        }
+
+        // dd(
+        //     $this->state,
+        //     $this->paymentState,
+        //     $this->purchaseCart,
+        // );
+
+        $this->state['created_by'] = Auth::user()->id;
+        $this->state['branch_id'] = 1;
+        $this->state['due'] = $this->due ?? 0;
+        $this->state['paid'] = $this->pay_amt ?? 0;
+        $this->state['payment_status'] = Payment::PaymentCheck($this->due);
+
+
+
+        $purchase_return = DB::table('purchase_return')
+            ->where('ref_memo_no', $this->state['ref_memo_no'])
+            ->first();
+
+        if ($purchase_return) {
+            $this->udate($purchase_return);
+        } else {
+            $this->create();
+        }
+
+
+
+    }
+
+    public function update($purchase_return)
+    {
+        DB::beginTransaction();
+        try {
+
+            DB::table('purchase_return')
+                ->where('ref_memo_no', $this->state['ref_memo_no'])
+                ->update($this->state);
+
+            DB::table('product_tran_dtl')
+                ->where('type', 'prt')
+                ->where('ref_id', $this->purchase_id)
+                ->delete();
+
+            DB::table('voucher')
+                ->where('tran_type', 'prt')
+                ->where('voucher_type', 'CR')
+                ->where('ref_memo', $this->state['ref_memo_no'])
+                ->update([
+                    'amount' => $this->state['total'],
+                ]);
+
+            foreach ($this->purchaseCart as $key => $value) {
+                DB::table('product_tran_dtl')->insert([
+                    'branch_id' => 1,
+                    'product_id' => $value['product_id'],
+                    'quantity' => $value['return_qty'],
+                    'rate' => $value['purchase_price'],
+                    'total' => $value['line_total'],
+                    'created_by' => Auth::user()->id,
+                    'ref_id' => $this->purchase_id,
+                    'ref_memo' => $this->state['ref_memo_no'],
+                    'return_ref_memo' => $purchase_return->memo_no,
+                    'type' => 'prt',
+                    'tran_user_id' => $this->supplier_id,
+                ]);
+            }
+
+
+            DB::commit();
+            session()->flash('status', 'Purchase returnd successfully');
+            return $this->redirect(route('purchase'), navigate: true);
+
+        } catch (\Exception $exception) {
+            DB::rollback();
+            session()->flash('error', $exception);
         }
     }
+
+    public function create()
+    {
+        DB::beginTransaction();
+        try {
+            $tran_id = DB::table('purchase_return')
+                ->insertGetId($this->state);
+
+            $purchase = DB::table('purchase_return')
+                ->where('id', $tran_id)
+                ->first();
+
+            DB::table('voucher')->insert([
+                'date' => $this->state['date'],
+                'voucher_type' => 'CR',
+                'tran_type' => 'prt',
+                'description' => 'Initial return voucher for ' . $this->state['ref_memo_no'],
+                'amount' => $this->state['total'],
+                'created_by' => Auth::user()->id,
+                'ref_id' => $this->purchase_id,
+                'tran_user_id' => $this->supplier_id,
+                'ref_memo' => $this->state['ref_memo_no'],
+                'return_ref_memo' => $purchase->memo_no,
+
+            ]);
+
+            foreach ($this->purchaseCart as $key => $value) {
+                DB::table('product_tran_dtl')->insert([
+                    'branch_id' => 1,
+                    'product_id' => $value['product_id'],
+                    'quantity' => $value['return_qty'],
+                    'rate' => $value['purchase_price'],
+                    'total' => $value['line_total'],
+                    'created_by' => Auth::user()->id,
+                    'ref_id' => $this->purchase_id,
+                    'ref_memo' => $this->state['ref_memo_no'],
+                    'return_ref_memo' => $purchase->memo_no,
+                    'type' => 'prt',
+                    'tran_user_id' => $this->supplier_id,
+                ]);
+            }
+
+            DB::commit();
+            session()->flash('status', 'Purchase returnd successfully');
+            return $this->redirect(route('purchase'), navigate: true);
+
+        } catch (\Exception $exception) {
+            DB::rollback();
+            session()->flash('error', $exception);
+        }
+    }
+
     public function render()
     {
         return view('livewire.dashboard.purchase.purchase-return-form');

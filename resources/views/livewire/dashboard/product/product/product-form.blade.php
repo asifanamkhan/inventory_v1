@@ -34,7 +34,7 @@
                 <div class="d-flex align-items-center">
                     <div style="width: 90%">
                         <div class="form-group mb-3" wire:ignore>
-                            <label for="">Product Category </label>
+                            <label for="">Product Category <span style="color: red"> * </span></label>
                             <select class="form-select select2" id='product_category'>
                                 <option value="">Select category</option>
                                 @forelse ($product_categories as $cat)
@@ -94,7 +94,7 @@
                                 @forelse ($product_units as $unit)
                                 <option @if ($unit->id == @$edit_select['edit_unit_id'])
                                     selected
-                                    @elseif ($unit->id == 2)
+                                    @elseif ($unit->id == 1)
                                     selected
                                     @endif
                                     value="{{ $unit->id }}">{{ $unit->name }}</option>

@@ -18,12 +18,12 @@ return new class extends Migration
             $table->integer('product_id')->index();
             $table->integer('tran_user_id')->nullable()->index();
             $table->string('type')->index();
-            $table->double('quantity')->default(0);
-            $table->double('rate')->default(0);
-            $table->double('total')->default(0);
-            $table->string('ref_memo')->index();
-            $table->string('return_ref_memo')->nullable();
-            $table->string('lot_ref_memo')->nullable();
+            $table->double('quantity')->default(0)->index();
+            $table->double('rate')->default(0)->index();
+            $table->double('total')->default(0)->index();
+            $table->string('ref_memo')->index()->index();
+            $table->string('return_ref_memo')->nullable()->index();
+            $table->string('lot_ref_memo')->nullable()->index();
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->timestamps();

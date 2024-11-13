@@ -11,16 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('expense', function (Blueprint $table) {
+        Schema::create('expense_details', function (Blueprint $table) {
             $table->id();
-            $table->string('category_id')->index();
-            $table->string('date')->index();
-            $table->string('status')->index();
-            $table->double('total');
-            $table->double('paid');
-            $table->double('due');
-            $table->text('remarks')->nullable();
-            $table->string('document')->nullable();
+            $table->integer('expense_id')->index();
+            $table->text('description')->nullable();
+            $table->double('amount');
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->timestamps();
@@ -33,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('expense');
+        Schema::dropIfExists('expense_details');
     }
 };

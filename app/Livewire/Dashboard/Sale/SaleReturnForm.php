@@ -35,6 +35,7 @@ class SaleReturnForm extends Component
             $tran_mst = DB::table('sale')
                 ->where('id', $sale_id)
                 ->first();
+
             $sale_rt = DB::table('sale_return')
                 ->where('ref_memo_no', $tran_mst->memo_no)
                 ->first();
@@ -48,9 +49,10 @@ class SaleReturnForm extends Component
             $this->state['customer_id'] = $tran_mst->customer_id;
             $this->state['remarks'] = $tran_mst->remarks;
             $this->state['date'] = Carbon::parse($tran_mst->date)->toDateString();
+            $this->customer_id = $this->state['customer_id'];
 
             $resultDtls = DB::table('vw_product_tran_dtl as p')
-                ->where('type','sl')
+                ->where('type', 'sl')
                 ->where('p.ref_id', $sale_id)
                 ->get([
                     'p.product_id',
@@ -65,7 +67,7 @@ class SaleReturnForm extends Component
             foreach ($resultDtls as $resultDtl) {
                 $qty = DB::table('product_tran_dtl')
                     ->where('product_id', $resultDtl->product_id)
-                    ->where('type' ,'slrt')
+                    ->where('type', 'slrt')
                     ->where('ref_id', $sale_id)
                     ->first();
 
@@ -78,7 +80,7 @@ class SaleReturnForm extends Component
                     'product_id' => $resultDtl->product_id,
                     'return_qty' => $qty->quantity ?? 0,
                     'is_check' => 0,
-                    'lot_ref_memo' => @$resultDtl->lot_ref_memo,
+                    'lot_ref_memo' => @$resultDtl->lot_ref_memo ?? '',
                 ];
 
                 $this->saleCheck[] = $resultDtl->product_id;
@@ -121,7 +123,7 @@ class SaleReturnForm extends Component
     public function calculation($key)
     {
         $qty = (float)$this->saleCart[$key]['return_qty'] ?? 0;
-        if($qty > $this->saleCart[$key]['qty']){
+        if ($qty > $this->saleCart[$key]['qty']) {
             session()->flash('error', 'Return qty cant bigger than sale qty');
             $qty = $this->saleCart[$key]['qty'];
             $this->saleCart[$key]['return_qty'] = $qty;
@@ -172,102 +174,132 @@ class SaleReturnForm extends Component
 
         ])->validate();
 
-        if (count($this->saleCart) > 0) {
-
-            // dd(
-            //     $this->state,
-            //     $this->paymentState,
-            //     $this->saleCart,
-            // );
-
-            $this->state['created_by'] = Auth::user()->id;
-            $this->state['branch_id'] = 1;
-            $this->state['due'] = $this->due ?? 0;
-            $this->state['paid'] = $this->pay_amt ?? 0;
-            $this->state['payment_status'] = Payment::PaymentCheck($this->due);
-
-
-            DB::beginTransaction();
-            try {
-
-                $sale = DB::table('sale_return')
-                    ->where('ref_memo_no', $this->state['ref_memo_no'])
-                    ->first();
-
-                if ($sale) {
-
-                    DB::table('sale_return')
-                        ->where('ref_memo_no', $this->state['ref_memo_no'])
-                        ->update($this->state);
-                    DB::table('product_tran_dtl')
-                        ->where('type', 'slrt')
-                        ->where('ref_id', $sale->id)
-                        ->delete();
-
-                    DB::table('voucher')
-                        ->where('tran_type', 'slrt')
-                        ->where('voucher_type', 'DR')
-                        ->where('return_ref_memo', $sale->memo_no)
-                        ->update([
-                            'amount' => $this->state['total'],
-                        ]);
-                } else {
-                    $tran_id = DB::table('sale_return')
-                        ->insertGetId($this->state);
-
-                    $sale = DB::table('sale_return')
-                        ->where('id', $tran_id)
-                        ->first();
-
-                    DB::table('voucher')->insert([
-                        'date' => $this->state['date'],
-                        'voucher_type' => 'DR',
-                        'tran_type' => 'slrt',
-                        'description' => 'Initial voucher for ' . $sale->memo_no,
-                        'amount' => $this->state['total'],
-                        'created_by' => Auth::user()->id,
-                        'ref_id' => $tran_id,
-                        'tran_user_id' => $this->customer_id,
-                        'ref_memo' => $this->state['ref_memo_no'],
-                        'return_ref_memo' => $sale->memo_no,
-
-                    ]);
-                }
-
-
-                foreach ($this->saleCart as $key => $value) {
-                    DB::table('product_tran_dtl')->insert([
-                        'branch_id' => 1,
-                        'product_id' => $value['product_id'],
-                        'quantity' => $value['return_qty'],
-                        'rate' => $value['sale_price'],
-                        'total' => $value['line_total'],
-                        'created_by' => Auth::user()->id,
-                        'ref_id' => @$tran_id ?? $sale->id,
-                        'ref_memo' => $this->state['ref_memo_no'],
-                        'return_ref_memo' => $sale->memo_no,
-                        'type' => 'slrt',
-                        'tran_user_id' => $this->customer_id,
-                        'lot_ref_memo' => $value['lot_ref_memo'],
-                    ]);
-                }
-
-
-
-
-
-                DB::commit();
-
-                session()->flash('status', 'Sale returnd successfully');
-                return $this->redirect(route('sale-return'), navigate: true);
-            } catch (\Exception $exception) {
-                DB::rollback();
-                session()->flash('error', $exception);
-            }
-        } else {
+        if (!count($this->saleCart ) > 0) {
             session()->flash('error', '*At least one product need to added');
+            return false;
+        }
+
+        // dd(
+        //     $this->state,
+        //     $this->paymentState,
+        //     $this->saleCart,
+        // );
+
+        $this->state['created_by'] = Auth::user()->id;
+        $this->state['branch_id'] = 1;
+        $this->state['due'] = $this->due ?? 0;
+        $this->state['paid'] = $this->pay_amt ?? 0;
+        $this->state['payment_status'] = Payment::PaymentCheck($this->due);
+
+        $sale_return = DB::table('sale_return')
+            ->where('ref_memo_no', $this->state['ref_memo_no'])
+            ->first();
+
+        if ($sale_return) {
+            $this->update($sale_return);
+        } else {
+            $this->create();
         }
     }
+
+    public function update($sale_return)
+    {
+        DB::beginTransaction();
+        try {
+            DB::table('sale_return')
+                ->where('ref_memo_no', $this->state['ref_memo_no'])
+                ->update($this->state);
+
+            DB::table('product_tran_dtl')
+                ->where('type', 'slrt')
+                ->where('ref_id', $this->sale_id)
+                ->delete();
+
+            DB::table('voucher')
+                ->where('tran_type', 'slrt')
+                ->where('voucher_type', 'DR')
+                ->where('ref_memo', $this->state['ref_memo_no']) //sale memo no
+                ->update([
+                    'amount' => $this->state['total'],
+                ]);
+
+            foreach ($this->saleCart as $key => $value) {
+                DB::table('product_tran_dtl')->insert([
+                    'branch_id' => 1,
+                    'product_id' => $value['product_id'],
+                    'quantity' => $value['return_qty'],
+                    'rate' => $value['sale_price'],
+                    'total' => $value['line_total'],
+                    'created_by' => Auth::user()->id,
+                    'ref_id' => $this->sale_id,
+                    'ref_memo' => $this->state['ref_memo_no'],
+                    'return_ref_memo' => $sale_return->memo_no,
+                    'type' => 'slrt',
+                    'tran_user_id' => $this->customer_id,
+                    'lot_ref_memo' => $value['lot_ref_memo'],
+                ]);
+            }
+            DB::commit();
+            session()->flash('status', 'Sale returnd successfully');
+            return $this->redirect(route('sale'), navigate: true);
+        } catch (\Exception $exception) {
+            DB::rollback();
+            session()->flash('error', $exception);
+        }
+    }
+
+    public function create()
+    {
+        DB::beginTransaction();
+        try {
+
+            $tran_id = DB::table('sale_return')
+                ->insertGetId($this->state);
+
+            $sale = DB::table('sale_return')
+                ->where('id', $tran_id)
+                ->first();
+
+            DB::table('voucher')->insert([
+                'date' => $this->state['date'],
+                'voucher_type' => 'DR',
+                'tran_type' => 'slrt',
+                'description' => 'Initial return voucher for ' . $this->state['ref_memo_no'],
+                'amount' => $this->state['total'],
+                'created_by' => Auth::user()->id,
+                'ref_id' => $this->sale_id,
+                'tran_user_id' => $this->customer_id,
+                'ref_memo' => $this->state['ref_memo_no'],
+                'return_ref_memo' => $sale->memo_no,
+
+            ]);
+
+            foreach ($this->saleCart as $key => $value) {
+                DB::table('product_tran_dtl')->insert([
+                    'branch_id' => 1,
+                    'product_id' => $value['product_id'],
+                    'quantity' => $value['return_qty'],
+                    'rate' => $value['sale_price'],
+                    'total' => $value['line_total'],
+                    'created_by' => Auth::user()->id,
+                    'ref_id' => $this->sale_id,
+                    'ref_memo' => $this->state['ref_memo_no'],
+                    'return_ref_memo' => $sale->memo_no,
+                    'type' => 'slrt',
+                    'tran_user_id' => $this->customer_id,
+                    'lot_ref_memo' => $value['lot_ref_memo'], //purchase memo
+                ]);
+            }
+            DB::commit();
+
+            session()->flash('status', 'Sale returnd successfully');
+            return $this->redirect(route('sale'), navigate: true);
+        } catch (\Exception $exception) {
+            DB::rollback();
+            session()->flash('error', $exception);
+        }
+    }
+
     public function render()
     {
         return view('livewire.dashboard.sale.sale-return-form');

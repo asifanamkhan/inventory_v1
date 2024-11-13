@@ -4,7 +4,7 @@
     </div>
     <div style="display: flex; justify-content: space-between; align-items:center">
         <h3 style="padding: 0px 5px 10px 5px;">
-            <i class="fa-units fa-bandcamp"></i> Product units</h3>
+            <i class="fa-brands fa-unity"></i> Product units</h3>
         <nav aria-label="breadcrumb" style="padding-right: 5px">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">Product</a></li>
@@ -31,9 +31,9 @@
             </div>
 
             <div class="col-md-8" style="text-align: right">
-                <button @click="$dispatch('create-product-unit-modal')" type="button" class="btn btn-primary"
+                <button @click="$dispatch('create-product-unit-modal')" type="button" class="btn btn-sm btn-success"
                     data-toggle="modal" data-target="#{{ $event }}">
-                    Create new unit
+                    <i class="fa fa-plus"></i> New unit
                 </button>
             </div>
 
@@ -75,7 +75,7 @@
                             <div class="">
                                 <button
                                     @click="$dispatch('product-unit-edit-modal', {id: {{ $productBrand->id }}})"
-                                    data-toggle="modal" data-target="#{{ $event }}" class="btn btn-sm btn-success">
+                                    data-toggle="modal" data-target="#{{ $event }}" class="btn btn-sm btn-warning">
                                     <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20px" height="20px"
                                         viewBox="0 0 50 50">
                                         <path fill="white"

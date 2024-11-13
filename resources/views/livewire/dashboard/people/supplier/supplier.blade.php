@@ -4,24 +4,16 @@
     </div>
     <div style="display: flex; justify-content: space-between; align-items:center">
         <h3 style="padding: 0px 5px 10px 5px;">
-            <i class="fa-solid fa-cart-shopping"></i> User
+            <i class="fa-solid fa-user"></i> Supplier
         </h3>
         <nav aria-label="breadcrumb" style="padding-right: 5px">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#">User</a></li>
+                <li class="breadcrumb-item"><a href="#">People</a></li>
                 <li class="breadcrumb-item active"><a wire:navigate href="{{ route('supplier') }}" style="color: #3C50E0">supplier
                         list</a></li>
             </ol>
         </nav>
     </div>
-    {{-- <div class="row" style="padding: 0px 8px 2px">
-        <p class="col-auto">
-            Total supplier:
-            <span class="badge bg-primary">
-                {{ $supplierGrantAmt }}
-            </span>
-        </p>
-    </div> --}}
 
     @if (session('status'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -49,29 +41,11 @@
                 </select>
             </div>
 
-            {{-- <div class="col-auto ">
-                <a class="btn btn-warning">
-                    <i class="fa-solid fa-file-excel"></i>
+            <div class="col-md-8" style="text-align: right">
+                <a wire:navigate href='{{route('supplier-create') }}' type="button" class="btn btn-sm btn-success">
+                    <i class="fa fa-plus"></i> New supplier
                 </a>
             </div>
-            <div class="col-auto ">
-                <a class="btn btn-info">
-                    <i class="fa-solid fa-print"></i>
-                </a>
-            </div> --}}
-            <div class="col-md-6">
-
-            </div>
-
-            <div class="col-md-2">
-                <a wire:navigate href='{{route('supplier-create') }}' type="button" class="btn btn-primary">Create new supplier</a>
-            </div>
-
-
-            {{-- modal --}}
-            {{-- <x-large-modal class='payment'>
-                <livewire:dashboard.people.supplier.form>
-            </x-large-modal> --}}
 
         </div>
         <div class="responsive-table" style="font-size: 0.9em !important;">
@@ -115,11 +89,9 @@
                         <td>{{ $supplier->address }}</td>
                         <td style="">
                             <div class="dropdown show">
-                                <a class="btn btn-sm btn-primary dropdown-toggle" href="#" role="button"
-                                    id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
-                                    aria-expanded="false">
-                                    Action &nbsp;&nbsp;&nbsp;&nbsp;
-                                </a>
+                                <button style="font-size:12px; border: 1px solid #009DE4 !important" class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Actions
+                                </button>
 
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                     <a class="dropdown-item" wire:navigate href="{{ route('supplier-edit', $supplier->id) }}">

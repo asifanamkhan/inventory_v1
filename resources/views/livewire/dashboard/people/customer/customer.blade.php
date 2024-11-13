@@ -9,19 +9,12 @@
         <nav aria-label="breadcrumb" style="padding-right: 5px">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">User</a></li>
-                <li class="breadcrumb-item active"><a wire:navigate href="{{ route('customer') }}" style="color: #3C50E0">customer
+                <li class="breadcrumb-item active"><a wire:navigate href="{{ route('customer') }}"
+                        style="color: #3C50E0">customer
                         list</a></li>
             </ol>
         </nav>
     </div>
-    {{-- <div class="row" style="padding: 0px 8px 2px">
-        <p class="col-auto">
-            Total customer:
-            <span class="badge bg-primary">
-                {{ $customerGrantAmt }}
-            </span>
-        </p>
-    </div> --}}
 
     @if (session('status'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -49,22 +42,9 @@
                 </select>
             </div>
 
-            {{-- <div class="col-auto ">
-                <a class="btn btn-warning">
-                    <i class="fa-solid fa-file-excel"></i>
-                </a>
-            </div>
-            <div class="col-auto ">
-                <a class="btn btn-info">
-                    <i class="fa-solid fa-print"></i>
-                </a>
-            </div> --}}
-            <div class="col-md-4">
-
-            </div>
-
-            <div class="col-md-4" style="text-align: right">
-                <a wire:navigate href='{{route('customer-create') }}' type="button" class="btn btn-primary">Create new customer</a>
+            <div class="col-md-8" style="text-align: right">
+                <a wire:navigate href='{{route('customer-create') }}' type="button" class="btn btn-sm btn-success">
+                    <i class="fa fa-plus"></i> Newcustomer</a>
             </div>
 
         </div>
@@ -91,16 +71,18 @@
                         <td>{{ $this->resultUser->firstItem() + $key }}</td>
                         <td>
                             @if ($customer->photo)
-                                @php
-                                    $photo = json_decode($customer->photo)[0];
+                            @php
+                            $photo = json_decode($customer->photo)[0];
 
-                                @endphp
-                                <a target='_blank' href="{{ asset('storage/app/upload/customer/'.$photo) }}">
-                                    <img class="" style="height: 30px; width:45px" src="{{ asset('storage/app/upload/customer/'.$photo) }}" alt="">
-                                </a>
-                                @else
-                                    <img class="" style="height: 30px; width:45px" src="{{ asset('public/img/no-img.png') }}" alt="">
-                                @endif
+                            @endphp
+                            <a target='_blank' href="{{ asset('storage/app/upload/customer/'.$photo) }}">
+                                <img class="" style="height: 30px; width:45px"
+                                    src="{{ asset('storage/app/upload/customer/'.$photo) }}" alt="">
+                            </a>
+                            @else
+                            <img class="" style="height: 30px; width:45px" src="{{ asset('public/img/no-img.png') }}"
+                                alt="">
+                            @endif
                         </td>
                         <td>{{ $customer->user_id }}</td>
                         <td>{{ $customer->name }}</td>
@@ -109,14 +91,16 @@
                         <td>{{ $customer->address }}</td>
                         <td style="">
                             <div class="dropdown show">
-                                <a class="btn btn-sm btn-primary dropdown-toggle" href="#" role="button"
-                                    id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+                                <button style="font-size:12px; border: 1px solid #009DE4 !important"
+                                    class="btn btn-sm btn-outline-primary dropdown-toggle" type="button"
+                                    id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
                                     aria-expanded="false">
-                                    Action &nbsp;&nbsp;&nbsp;&nbsp;
-                                </a>
+                                    Actions
+                                </button>
 
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                    <a class="dropdown-item" wire:navigate href="{{ route('customer-edit', $customer->id) }}">
+                                    <a class="dropdown-item" wire:navigate
+                                        href="{{ route('customer-edit', $customer->id) }}">
                                         <i class="fa fa-edit"></i> <span>Edit</span>
                                     </a>
                                     {{-- <a class="dropdown-item d-flex gap-1" wire:navigate
@@ -148,5 +132,3 @@
     });
 </script>
 @endscript
-
-

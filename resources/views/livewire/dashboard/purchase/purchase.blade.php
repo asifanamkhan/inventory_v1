@@ -230,7 +230,6 @@
                         </td>
                         <td style="text-align: right">
                             @php
-
                             $due_total += (float)$purchase->total_due;
                             @endphp
                             {{ number_format($purchase->total_due, 2, '.', '') }}
@@ -244,8 +243,6 @@
                                 @else
                                     <span class="badge" style="background: #DC3545;">OVER DUE</span>
                                 @endif
-
-
                             </div>
                         </td>
                         <td style="">

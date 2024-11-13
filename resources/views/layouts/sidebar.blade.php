@@ -47,7 +47,7 @@
         </li>
         <li>
             <a href="#peopleSubmenu" data-toggle="collapse" aria-expanded="true" class=" dropdown-toggle-sidebar dropdown-toggle main-list">
-                <i class="fa-solid fa-users"></i> People
+                <i class="fa-solid fa-user"></i> People
             </a>
             <ul class="collapse list-unstyled
         {{ request()->routeIs('supplier') ? 'show' : ' ' }}
@@ -81,7 +81,7 @@
 
         <li>
             <a href="#productSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle-sidebar dropdown-toggle main-list">
-                <i class="fa-solid fa-users"></i> Product
+                <i class="fa-brands fa-unity"></i> Product
             </a>
             <ul class="collapse list-unstyled
         {{ request()->routeIs('brand') ? 'show' : ' ' }}
@@ -174,23 +174,74 @@
                  ">
                     <a class="list" wire:navigate href="{{ route('sale') }}"> - Sale list</a>
                 </li>
-                <li class="
+                {{-- <li class="
                 {{ request()->routeIs('sale-create') ? 'active' : ' ' }}
                  ">
                     <a class="list" wire:navigate href="{{ route('sale-create') }}"> - Sale entry</a>
-                </li>
+                </li> --}}
                 <li class="
                 {{ request()->routeIs('lot-sale-create') ? 'active' : ' ' }}
                  ">
-                    <a class="list" wire:navigate href="{{ route('lot-sale-create') }}"> - Lot Sale entry</a>
+                    <a class="list" wire:navigate href="{{ route('lot-sale-create') }}"> - Sale entry</a>
                 </li>
                 <li class="
                 {{ request()->routeIs('sale-return') ? 'active' : ' ' }}
                 {{ request()->routeIs('sale-return-form') ? 'active' : ' ' }}
 
                  ">
-                    <a class="list" wire:navigate href="{{ route('sale-return') }}"> - Purchase return</a>
+                    <a class="list" wire:navigate href="{{ route('sale-return') }}"> - Sale return</a>
                 </li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="#expenseSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle-sidebar dropdown-toggle main-list">
+                <i class="fas fa-receipt"></i> Expense
+            </a>
+            <ul class="collapse list-unstyled
+            {{ request()->routeIs('expense') ? 'show' : ' ' }}
+            {{ request()->routeIs('expense-create') ? 'show' : ' ' }}
+            {{ request()->routeIs('expense-edit') ? 'show' : ' ' }}
+            {{ request()->routeIs('expense-details') ? 'show' : ' ' }}
+            {{ request()->routeIs('expense-category') ? 'show' : ' ' }}
+
+
+        " id="expenseSubmenu">
+                <li class="
+                    {{ request()->routeIs('expense-category') ? 'active' : ' ' }}
+                    ">
+                    <a class="list" wire:navigate href="{{ route('expense-category') }}"> - Expense category</a>
+                </li>
+                <li class="
+                {{ request()->routeIs('expense') ? 'active' : ' ' }}
+                {{ request()->routeIs('expense-edit') ? 'active' : ' ' }}
+                {{ request()->routeIs('expense-details') ? 'active' : ' ' }}
+                 ">
+                    <a class="list" wire:navigate href="{{ route('expense') }}"> - Expense list</a>
+                </li>
+                <li class="
+                {{ request()->routeIs('expense-create') ? 'active' : ' ' }}
+                 ">
+                    <a class="list" wire:navigate href="{{ route('expense-create') }}"> - Expense entry</a>
+                </li>
+
+            </ul>
+        </li>
+
+        <li>
+            <a href="#reportSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle-sidebar dropdown-toggle main-list">
+                <i class="far fa-percentage"></i> Reports
+            </a>
+            <ul class="collapse list-unstyled
+            {{-- {{ request()->routeIs('expense') ? 'show' : ' ' }} --}}
+
+        " id="reportSubmenu">
+                {{-- <li class="
+                    {{ request()->routeIs('expense-category') ? 'active' : ' ' }}
+                    ">
+                    <a class="list" wire:navigate href="{{ route('expense-category') }}"> - Expense category</a>
+                </li> --}}
+
             </ul>
         </li>
 
