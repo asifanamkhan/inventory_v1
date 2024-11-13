@@ -1,4 +1,4 @@
-<nav id="sidebar">
+<nav id="sidebar" style="text-transform: uppercase">
 
     <div class="sidebar-header">
         <div>
@@ -19,7 +19,7 @@
             <a wire:navigate href="{{ route('dashboard') }}"><i class="fa fa-home"></i> Dashboard</a>
         </li>
         <li>
-            <a href="#adminSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle main-list">
+            <a href="#adminSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle-sidebar dropdown-toggle main-list">
                 <i class="fa-solid fa-screwdriver-wrench"></i> Administrator
             </a>
             <ul class="collapse list-unstyled
@@ -46,7 +46,7 @@
             </ul>
         </li>
         <li>
-            <a href="#peopleSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle main-list">
+            <a href="#peopleSubmenu" data-toggle="collapse" aria-expanded="true" class=" dropdown-toggle-sidebar dropdown-toggle main-list">
                 <i class="fa-solid fa-users"></i> People
             </a>
             <ul class="collapse list-unstyled
@@ -80,7 +80,7 @@
         </li>
 
         <li>
-            <a href="#productSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle main-list">
+            <a href="#productSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle-sidebar dropdown-toggle main-list">
                 <i class="fa-solid fa-users"></i> Product
             </a>
             <ul class="collapse list-unstyled
@@ -118,7 +118,7 @@
         </li>
 
         <li>
-            <a href="#purchaseSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle main-list">
+            <a href="#purchaseSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle-sidebar dropdown-toggle main-list">
                 <i class="fa-solid fa-cart-shopping"></i> Purchase
             </a>
             <ul class="collapse list-unstyled
@@ -127,9 +127,8 @@
             {{ request()->routeIs('purchase-edit') ? 'show' : ' ' }}
             {{ request()->routeIs('purchase-details') ? 'show' : ' ' }}
             {{ request()->routeIs('purchase-return') ? 'show' : ' ' }}
-            {{ request()->routeIs('purchase-return-create') ? 'show' : ' ' }}
-            {{ request()->routeIs('purchase-return-edit') ? 'show' : ' ' }}
-            {{-- {{ request()->routeIs('purchase-return-details') ? 'show' : ' ' }}  --}}
+            {{ request()->routeIs('purchase-return-form') ? 'show' : ' ' }}
+
 
         " id="purchaseSubmenu">
                 <li class="
@@ -146,27 +145,26 @@
                 </li>
                 <li class="
                 {{ request()->routeIs('purchase-return') ? 'active' : ' ' }}
-                {{ request()->routeIs('purchase-return-create') ? 'active' : ' ' }}
-                {{ request()->routeIs('purchase-return-edit') ? 'active' : ' ' }}
-                {{-- {{ request()->routeIs('purchase-return-details') ? 'active' : ' ' }} --}}
+                {{ request()->routeIs('purchase-return-form') ? 'active' : ' ' }}
                  ">
                     <a class="list" wire:navigate href="{{ route('purchase-return') }}"> - Purchase return</a>
                 </li>
             </ul>
         </li>
         <li>
-            <a href="#saleSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle main-list">
+            <a href="#saleSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle-sidebar dropdown-toggle main-list">
                 <i class="fa-solid fa-scale-balanced"></i> Sale
             </a>
             <ul class="collapse list-unstyled
             {{ request()->routeIs('sale') ? 'show' : ' ' }}
             {{ request()->routeIs('sale-create') ? 'show' : ' ' }}
+            {{ request()->routeIs('lot-sale-create') ? 'show' : ' ' }}
             {{ request()->routeIs('sale-edit') ? 'show' : ' ' }}
+            {{ request()->routeIs('lot-sale-edit') ? 'show' : ' ' }}
             {{ request()->routeIs('sale-details') ? 'show' : ' ' }}
-            {{-- {{ request()->routeIs('purchase-return') ? 'show' : ' ' }}
-            {{ request()->routeIs('purchase-return-create') ? 'show' : ' ' }}
-            {{ request()->routeIs('purchase-return-edit') ? 'show' : ' ' }}
-            {{ request()->routeIs('purchase-return-details') ? 'show' : ' ' }} --}}
+            {{ request()->routeIs('sale-return') ? 'show' : ' ' }}
+            {{ request()->routeIs('purchase-return-form') ? 'show' : ' ' }}
+
 
         " id="saleSubmenu">
                 <li class="
@@ -181,14 +179,18 @@
                  ">
                     <a class="list" wire:navigate href="{{ route('sale-create') }}"> - Sale entry</a>
                 </li>
-                {{-- <li class="
-                {{ request()->routeIs('purchase-return') ? 'active' : ' ' }}
-                {{ request()->routeIs('purchase-return-create') ? 'active' : ' ' }}
-                {{ request()->routeIs('purchase-return-edit') ? 'active' : ' ' }}
-                {{ request()->routeIs('purchase-return-details') ? 'active' : ' ' }}
+                <li class="
+                {{ request()->routeIs('lot-sale-create') ? 'active' : ' ' }}
                  ">
-                    <a class="list" wire:navigate href="{{ route('purchase-return') }}"> - Purchase return</a>
-                </li> --}}
+                    <a class="list" wire:navigate href="{{ route('lot-sale-create') }}"> - Lot Sale entry</a>
+                </li>
+                <li class="
+                {{ request()->routeIs('sale-return') ? 'active' : ' ' }}
+                {{ request()->routeIs('sale-return-form') ? 'active' : ' ' }}
+
+                 ">
+                    <a class="list" wire:navigate href="{{ route('sale-return') }}"> - Purchase return</a>
+                </li>
             </ul>
         </li>
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Dashboard\Purchase;
+namespace App\Livewire\Dashboard\Sale;
 
 use Carbon\Carbon;
 use Livewire\Component;
@@ -9,7 +9,7 @@ use Livewire\Attributes\Computed;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
 
-class Purchase extends Component
+class SaleReturn extends Component
 {
     use WithPagination;
 
@@ -19,10 +19,9 @@ class Purchase extends Component
     public $rt_total = 0;
     public $paid_total = 0;
     public $due_total = 0;
-    public $purchaseGrantAmt = 0;
-    public $purchasePaidAmt = 0;
-    public $purchaseRtAmt = 0;
-    public $purchaseDueAmt = 0;
+    public $saleGrantAmt = 0;
+    public $salePaidAmt = 0;
+    public $saleDueAmt = 0;
     public $selectRows = [];
     public $selectPageRows = false;
 
@@ -31,48 +30,48 @@ class Purchase extends Component
 
 
     #[Computed]
-    #[On('purchase-all')]
-    public function resultPurchase()
+    #[On('sale-all')]
+    public function resultSale()
     {
-        $purchases = DB::table('vw_purchase as p');
+        $sales = DB::table('sale_return as p');
 
-        $purchases
-            ->orderBy('p.purchase_id', 'DESC')
+        $sales
+            ->orderBy('p.id', 'DESC')
             ->select(['p.*']);
 
         if ($this->search) {
-            $purchases
+            $sales
                 ->orwhere(DB::raw('lower(p.memo_no)'), 'like', '%' . strtolower($this->search) . '%')
                 ->orWhere('p.total', 'like', '%' . $this->search . '%')
                 ->orWhere('p.paid', 'like', '%' . $this->search . '%');
         }
         if ($this->searchMemo) {
-            $purchases->where('p.memo_no', 'like', '%' . $this->searchMemo . '%');
+            $sales->where('p.memo_no', 'like', '%' . $this->searchMemo . '%');
         }
         if ($this->searchSupplier) {
-            $purchases->where('p.supplier_name', 'like', '%' . $this->searchMemo . '%');
+            $sales->where('p.supplier_name', 'like', '%' . $this->searchMemo . '%');
         }
 
         if ($this->searchStatus) {
-            $purchases->where('p.status', $this->searchStatus);
+            $sales->where('p.status', $this->searchStatus);
         }
         if ($this->searchPayStatus) {
-            $purchases->where('p.payment_status', $this->searchPayStatus);
+            $sales->where('p.payment_status', $this->searchPayStatus);
         }
 
         if ($this->firstFilterDate) {
-            $purchases->where('p.date', '>=', $this->firstFilterDate);
+            $sales->where('p.date', '>=', $this->firstFilterDate);
         }
 
         if ($this->lastFilterDate) {
-            $purchases->where('p.date', '<=', $this->lastFilterDate);
+            $sales->where('p.date', '<=', $this->lastFilterDate);
         }
 
 
-        // $p =   $purchases->get();
+        // $p =   $sales->get();
         // dd($p);
 
-        return $purchases->paginate($this->pagination);
+        return $sales->paginate($this->pagination);
     }
 
     public function dateFilter()
@@ -90,28 +89,26 @@ class Purchase extends Component
     public function updatedSelectPageRows()
     {
         if ($this->selectPageRows) {
-            $this->selectRows = $this->resultPurchase->pluck('id')->toArray();
+            $this->selectRows = $this->resultSale->pluck('id')->toArray();
         } else {
             $this->selectRows = [];
         }
     }
 
-    #[On('purchase-all')]
+    #[On('sale-all')]
     public function grandCalc()
     {
-        $amt = DB::table('vw_purchase as p')
+        $amt = DB::table('sale_return as p')
             ->select(
                 DB::raw('SUM(total) AS total'),
                 DB::raw('SUM(paid) AS paid'),
-                DB::raw('SUM(pr_return) AS tot_return'),
-                DB::raw('SUM(total_due) AS total_due'),
+                DB::raw('SUM(due) AS due'),
             )
             ->first();
 
-        $this->purchaseRtAmt = $amt->tot_return;
-        $this->purchaseGrantAmt = $amt->total;
-        $this->purchasePaidAmt = $amt->paid;
-        $this->purchaseDueAmt = $amt->total_due;
+        $this->saleGrantAmt = $amt->total;
+        $this->salePaidAmt = $amt->paid;
+        $this->saleDueAmt = $amt->due;
     }
 
     public function mount()
@@ -120,6 +117,6 @@ class Purchase extends Component
     }
     public function render()
     {
-        return view('livewire.dashboard.purchase.purchase');
+        return view('livewire.dashboard.sale.sale-return');
     }
 }

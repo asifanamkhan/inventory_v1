@@ -18,8 +18,9 @@ class PurchasePayment extends Component
 
     public $search;
     public $pagination = 10;
-    public $payment_methods, $mst;
+    public $payment_methods, $mst, $edit = false;
     public $purchase_id;
+    public $payment_type = 1;
     public $paymentState = [];
     public function paymentMethodAll()
     {
@@ -33,9 +34,13 @@ class PurchasePayment extends Component
     }
     public function purchaseMst($id)
     {
+        $this->edit = false;
+        $this->paymentState['pay_mode'] = 1;
+        $this->paymentState['amount'] = 0;
         $this->mst = (array)DB::table('vw_purchase as p')
             ->where('p.purchase_id', $id)
             ->first(['p.*']);
+
     }
     public function mount()
     {
@@ -48,7 +53,7 @@ class PurchasePayment extends Component
     {
 
         $payments = DB::table('voucher as p')
-            ->where('tran_type', 'pr')
+            ->whereIn('tran_type', ['pr','prt'])
             ->where('cash_type', '!=', null)
             ->where('p.ref_id', $this->purchase_id)
             ->orderBy('p.voucher_no', 'DESC')
@@ -78,21 +83,52 @@ class PurchasePayment extends Component
             DB::beginTransaction();
             try {
 
-                DB::table('voucher')->insert([
-                    'date' => Carbon::now()->toDateString(),
-                    'voucher_type' => 'CR',
-                    'tran_type' => 'pr',
-                    'description' => $this->paymentState['description'] ?? '',
-                    'tran_no' => $this->paymentState['tran_no'] ?? '',
-                    'amount' => $this->paymentState['amount'],
-                    'created_by' => Auth::user()->id,
-                    'ref_id' => $this->purchase_id,
-                    'tran_user_id' => $this->mst['supplier_id'],
-                    'ref_memo' => $this->mst['memo_no'],
-                    'cash_type' => 'OUT',
-                    'pay_mode' => $this->paymentState['pay_mode'],
+                if(@$this->paymentState['pay_type'] == 2){
+                    $amt = ((float)$this->mst['pr_return'] - (float)$this->mst['pr_return_paid'] )- (float)$this->paymentState['amount'];
+                    if($amt < 0){
+                        session()->flash('error', 'Payment amount should not be greater than purchase return amount');
+                        return 0;
+                    }
+                    DB::table('voucher')->insert([
+                        'date' => Carbon::now()->toDateString(),
+                        'voucher_type' => 'DR',
+                        'tran_type' => 'prt',
+                        'description' => $this->paymentState['description'] ?? '',
+                        'tran_no' => $this->paymentState['tran_no'] ?? '',
+                        'amount' => $this->paymentState['amount'],
+                        'created_by' => Auth::user()->id,
+                        'ref_id' => $this->purchase_id,
+                        'tran_user_id' => $this->mst['supplier_id'],
+                        'ref_memo' => $this->mst['memo_no'],
+                        'cash_type' => 'IN',
+                        'pay_mode' => $this->paymentState['pay_mode'],
 
-                ]);
+                    ]);
+                }else{
+                    $amt = (float)$this->mst['total_due'] - (float)$this->paymentState['amount'];
+                    if($amt < 0){
+                        session()->flash('error', 'Payment amount should not be greater than purchase amount');
+                        return 0;
+                    }
+
+                    DB::table('voucher')->insert([
+                        'date' => Carbon::now()->toDateString(),
+                        'voucher_type' => 'CR',
+                        'tran_type' => 'pr',
+                        'description' => $this->paymentState['description'] ?? '',
+                        'tran_no' => $this->paymentState['tran_no'] ?? '',
+                        'amount' => $this->paymentState['amount'],
+                        'created_by' => Auth::user()->id,
+                        'ref_id' => $this->purchase_id,
+                        'tran_user_id' => $this->mst['supplier_id'],
+                        'ref_memo' => $this->mst['memo_no'],
+                        'cash_type' => 'OUT',
+                        'pay_mode' => $this->paymentState['pay_mode'],
+
+                    ]);
+                }
+
+
 
                 DB::commit();
 
@@ -106,6 +142,23 @@ class PurchasePayment extends Component
                 session()->flash('error', $exception);
             }
         }
+    }
+
+    public function editPayment($id){
+        $this->paymentState = (array)DB::table('voucher')
+            ->where('id', $id)
+            ->first();
+        if($this->paymentState['tran_type'] == 'prt'){
+            $this->paymentState['pay_type'] = 2;
+        }
+        $this->edit = true;
+    }
+
+    public function newPayment(){
+        $this->paymentState['amount'] = 0;
+        $this->paymentState['pay_mode'] = 1;
+        $this->paymentState['pay_type'] = 1;
+        $this->edit = false;
     }
     public function render()
     {

@@ -2,7 +2,9 @@
     @push('css')
     <style>
         .productRow {
-            color: white;
+            /* color: white; */
+            text-transform: uppercase;
+            font-weight: 400;
             cursor: pointer;
             padding: 0rem 1rem !important;
             margin-bottom: 5px !important
@@ -15,14 +17,19 @@
         }
 
         .productRow:hover {
-            background: #8f9cff
+            background: #3C50E0;
+            color: white;
         }
 
         .search__container {
-            background: #227CE9 !important;
-            padding: 0.2rem !important;
+            /* background: #227CE9 !important; */
+            background: white;
+            border: 1px solid #3C50E0;
+            border-top: none;
+            padding: 0.2rem 0 !important;
             border-bottom-left-radius: 8px !important;
             border-bottom-right-radius: 8px !important;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15), 0px 4px 15px rgba(60, 80, 224, 0.2);
         }
     </style>
     @endpush
@@ -99,10 +106,10 @@
                 <div class="form-group mb-3">
                     <label for=""> Product search </label>
                     <div class="d-flex align-items-center gap-2">
-                        <div style="width:5%; border: 1px solid #DFE2E6;padding: 10px;border-radius: 4px;">
+                        <div style=" border: 1px solid #DFE2E6;padding: 10px;border-radius: 4px;">
                             <i style="font-size: 35px" class="fa fa-barcode"></i>
                         </div>
-                        <div class="position-relative" @click.away="edit = false" style="width: 90%">
+                        <div class="position-relative" @click.away="edit = false" style="width: 100%">
                             <input autocomplete="off" autofocus='true'
                                 placeholder="please type product name or code or scan barcode" @input="edit = true"
                                 style="padding: 1rem" wire:model.live.debounce.500ms='productsearch'
@@ -111,13 +118,13 @@
                                 wire:keydown.enter.prevent="selectAccount" type='text' class="form-control">
 
                             <div class="position-absolute w-full"
-                                style="width:100%; max-height: 250px; overflow-y:scroll">
+                                style="width:100%;">
                                 @if (count($resultProducts) > 0)
                                 <div x-show="edit === true" class="search__container">
                                     @forelse ($resultProducts as $pk => $resultProduct)
                                     <p class="productRow" wire:click='searchRowSelect({{ $pk }})' wire:key='{{ $pk }}'
                                         @click="edit = false"
-                                        style="@if($searchSelect === $pk) background: #1e418685; @endif">
+                                        style="@if($searchSelect === $pk) background: #3C50E0; color: white @endif">
                                         {{ $resultProduct->name }}
                                             @if (@$resultProduct->variant_description)
                                             - {{ $resultProduct->variant_description }}
@@ -137,7 +144,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div style="width:5%; border: 1px solid #DFE2E6;padding: 10px;border-radius: 4px;">
+                        <div style="border: 1px solid #DFE2E6;padding: 10px;border-radius: 4px;">
                             <i style="font-size: 35px" class="fa fa-barcode"></i>
                         </div>
 

@@ -27,12 +27,15 @@ use App\Livewire\Dashboard\Purchase\PurchaseCreate;
 use App\Livewire\Dashboard\Purchase\PurchaseDetails;
 use App\Livewire\Dashboard\Purchase\PurchaseEdit;
 use App\Livewire\Dashboard\Purchase\PurchaseReturn;
-use App\Livewire\Dashboard\Purchase\PurchaseReturnCreate;
-use App\Livewire\Dashboard\Purchase\PurchaseReturnEdit;
+use App\Livewire\Dashboard\Purchase\PurchaseReturnForm;
+use App\Livewire\Dashboard\Sale\LotSale\LotSaleCreate;
+use App\Livewire\Dashboard\Sale\LotSale\LotSaleEdit;
 use App\Livewire\Dashboard\Sale\Sale;
 use App\Livewire\Dashboard\Sale\SaleCreate;
 use App\Livewire\Dashboard\Sale\SaleDetails;
 use App\Livewire\Dashboard\Sale\SaleEdit;
+use App\Livewire\Dashboard\Sale\SaleReturn;
+use App\Livewire\Dashboard\Sale\SaleReturnForm;
 
 Livewire::setUpdateRoute(function ($handle) {
     $path = env('LIVEWIRE_UPDATE_PATH').'/livewire/update';
@@ -74,10 +77,7 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->group(function () {
     Route::get('purchase-invoice/{purchase_id}', [PurchaseController::class, 'invoice'])->name('purchase-invoice');
 
     Route::get('purchase/return', PurchaseReturn::class)->name('purchase-return');
-    Route::get('purchase/return/create', PurchaseReturnCreate::class)->name('purchase-return-create');
-    Route::get('purchase/return/{purchase_id}/edit', PurchaseReturnEdit::class)->name('purchase-return-edit');
-    // Route::get('purchase/return/{purchase_id}/details', PurchaseDetails::class)->name('purchase-return-details');
-    Route::get('purchase/return-invoice/{purchase_id}', [PurchaseController::class, 'invoice'])->name('purchase-return-invoice');
+    Route::get('purchase/return/form/{purchase_id}', PurchaseReturnForm::class)->name('purchase-return-form');
 
 
     Route::get('sale', Sale::class)->name('sale');
@@ -85,5 +85,13 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->group(function () {
     Route::get('sale/{sale_id}/edit', SaleEdit::class)->name('sale-edit');
     Route::get('sale/{sale_id}/details', SaleDetails::class)->name('sale-details');
     Route::get('sale-invoice/{sale_id}', [SaleController::class, 'invoice'])->name('sale-invoice');
+
+    Route::get('lot/sale/create', LotSaleCreate::class)->name('lot-sale-create');
+    Route::get('lot/sale/{sale_id}/edit', LotSaleEdit::class)->name('lot-sale-edit');
+
+    Route::get('sale/return', SaleReturn::class)->name('sale-return');
+    Route::get('sale/return/form/{sale_id}', SaleReturnForm::class)->name('sale-return-form');
+
+
 
 });

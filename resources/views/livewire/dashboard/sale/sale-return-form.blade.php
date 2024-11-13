@@ -31,13 +31,13 @@
     </div>
     <div style="display: flex; justify-content: space-between; align-items:center">
         <h3 style="padding: 0px 5px 10px 5px;">
-            <i class="fa fa-plus"></i> Purchase return
+            <i class="fa fa-plus"></i> Sale return
         </h3>
         <nav aria-label="breadcrumb" style="padding-right: 5px">
             <ol class="breadcrumb">
 
-                <li class="breadcrumb-item active"><a wire:navigate href="{{ route('purchase-return') }}">Purchase return</a></li>
-                <li class="breadcrumb-item active"><a wire:navigate href="{{ route('purchase-return-form', $purchase_id) }}"
+                <li class="breadcrumb-item active"><a wire:navigate href="{{ route('sale-return') }}">Sale return</a></li>
+                <li class="breadcrumb-item active"><a wire:navigate href="{{ route('sale-return-form', $sale_id) }}"
                         style="color: #3C50E0">create</a></li>
             </ol>
         </nav>
@@ -60,7 +60,7 @@
             <div class="row" x-data="{edit : false}">
                 <div class="col-md-4">
                     <x-input required_mark='true' wire:model='state.date' name='date' type='date'
-                        label='Purchase return date' />
+                        label='Sale return date' />
                 </div>
 
                 <div class="col-md-4">
@@ -86,7 +86,7 @@
                             <tr class="bg-sidebar">
                                 <td class="" style="width:3%">SL</td>
                                 <td class="" style="width:35%">Item</td>
-                                <td class="text-center" style="width:15%">Purchase Qty</td>
+                                <td class="text-center" style="width:15%">Sale Qty</td>
                                 <td class="text-center" style="width:15%">Return Qty</td>
                                 <td class="text-center" style="width:15%">Price</td>
                                 <td class="text-center" style="width:15%">Return Amt</td>
@@ -94,34 +94,34 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($purchaseCart as $purchase_key => $purchase)
-                            <tr wire:key='{{ $purchase_key }}' style="
-                                @if ($purchase['is_check'] == 1)
+                            @forelse ($saleCart as $sale_key => $sale)
+                            <tr wire:key='{{ $sale_key }}' style="
+                                @if ($sale['is_check'] == 1)
                                     background: #A3D1A3
                                 @endif
                                 "
                             >
-                                <td>{{ $purchase_key + 1 }}</td>
+                                <td>{{ $sale_key + 1 }}</td>
                                 <td>
-                                    {{ $purchase['name'] }}
+                                    {{ $sale['name'] }}
 
-                                    @if (@$purchase['variant_description'])
-                                    | {{ $purchase['variant_description'] }}
+                                    @if (@$sale['variant_description'])
+                                    | {{ $sale['variant_description'] }}
                                     @endif
 
                                 </td>
 
                                 <td>
-                                    <input readonly wire:input.debounce.500ms='calculation({{ $purchase_key }})' type="number"
-                                        wire:model='purchaseCart.{{ $purchase_key }}.qty' class="form-control text-center">
+                                    <input readonly wire:input.debounce.500ms='calculation({{ $sale_key }})' type="number"
+                                        wire:model='saleCart.{{ $sale_key }}.qty' class="form-control text-center">
                                 </td>
                                 <td>
-                                    <input @if ($purchase['is_check']==0) readonly @endif wire:input.debounce.500ms='calculation({{ $purchase_key }})' type="number"
-                                        wire:model='purchaseCart.{{ $purchase_key }}.return_qty' class="form-control text-center">
+                                    <input @if ($sale['is_check']==0) readonly @endif wire:input.debounce.500ms='calculation({{ $sale_key }})' type="number"
+                                        wire:model='saleCart.{{ $sale_key }}.return_qty' class="form-control text-center">
                                 </td>
                                 <td>
-                                    <input type="number" readonly wire:input.debounce.500ms='calculation({{ $purchase_key }})'
-                                        wire:model='purchaseCart.{{ $purchase_key }}.purchase_price'
+                                    <input type="number" readonly wire:input.debounce.500ms='calculation({{ $sale_key }})'
+                                        wire:model='saleCart.{{ $sale_key }}.sale_price'
                                         class="form-control text-center">
                                 </td>
 
@@ -129,13 +129,13 @@
                                 <td>
                                     <input loading="lazy" tabindex="-1" type="number" style="border: 1px solid green; text-align: right"
                                         readonly class="form-control"
-                                        wire:model='purchaseCart.{{ $purchase_key }}.line_total'>
+                                        wire:model='saleCart.{{ $sale_key }}.line_total'>
                                 </td>
                                 <td>
                                     <div class="text-center">
                                         <div class="d-flex justify-content-center">
-                                            <input wire:click='purchaseActive({{ $purchase_key }})'
-                                                wire:model='purchaseCart.{{ $purchase_key }}.is_check'
+                                            <input wire:click='saleActive({{ $sale_key }})'
+                                                wire:model='saleCart.{{ $sale_key }}.is_check'
                                                 class="form-check-input" type="checkbox">
                                         </div>
 
@@ -193,13 +193,13 @@
                 </div>
                 <div class="col-md-7">
                     <div class="form-group">
-                        <label for="">Purchase remarks </label>
+                        <label for="">Sale remarks </label>
                         <livewire:quill-text-editor wire:model="state.remarks" theme="snow" />
                     </div>
                 </div>
                 <div class="col-md-5">
                     <div class="form-group">
-                        <label for="">Purchase documents </label>
+                        <label for="">Sale documents </label>
                         <livewire:dropzone wire:model="document" :rules="['mimes:jpg,svg,png,jpeg,pdf,docx,xlsx,csv']"
                             :key="'dropzone-two'" />
                     </div>
@@ -227,4 +227,5 @@
 
 </script>
 @endscript
+
 

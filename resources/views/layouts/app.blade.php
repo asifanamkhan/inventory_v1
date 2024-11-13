@@ -154,7 +154,12 @@
                 </div>
             </nav>
             @endpersist
-            {{ $slot }}
+            <div class="main-contant">
+                {{ $slot }}
+            </div>
+            <div class="footer">
+                Ultimate POS - V6.4 | Copyright © 2024 All rights reserved.
+            </div>
         </div>
     </div>
 

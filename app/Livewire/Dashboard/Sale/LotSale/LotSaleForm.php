@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Dashboard\Purchase;
+namespace App\Livewire\Dashboard\Sale\LotSale;
 
 use App\Service\Payment;
 use App\Service\PaymentMethod;
@@ -11,25 +11,26 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class PurchaseForm extends Component
+class LotSaleForm extends Component
 {
     public $state = [];
     public $edit_select = [];
-    public $purchase_id;
+    public $sale_id;
     public $document = [];
     public $paymentState = [];
-    public $suppliers, $productsearch, $payment_methods;
+    public $customers, $productsearch, $psearch, $payment_methods;
     public $resultProducts = [];
-    public $purchaseCart = [];
-    public $purchaseCheck = [];
+    public $resultPurchase = [];
+    public $saleCart = [];
+    public $saleCheck = [];
     public $searchSelect = -1;
     public $countProduct = 0;
-    public $pay_amt, $due, $action;
+    public $pay_amt, $due, $action, $purchase_memo_no;
 
 
-    public function suppliersAll()
+    public function customersAll()
     {
-        return $this->suppliers = DB::table('suppliers')
+        return $this->customers = DB::table('customers')
             ->orderBy('id', 'DESC')
             ->get();
     }
@@ -40,29 +41,63 @@ class PurchaseForm extends Component
         return $this->payment_methods = PaymentMethod::$methods;
     }
 
+
+    public function updatedPsearch()
+    {
+
+        $result = DB::table('vw_purchase as p')
+            ->where('memo_no', $this->psearch)
+            ->get()
+            ->toArray();
+
+        if ($result) {
+            $this->purchase_memo_no = $this->psearch;
+            $this->resultPurchase = [];
+            $this->saleCart = [];
+            $this->saleCheck = [];
+        } else {
+            $this->resultPurchase = DB::table('vw_purchase as p')
+                ->where(DB::raw('lower(p.memo_no)'), 'like', '%' . strtolower($this->productsearch) . '%')
+                ->orWhere('p.supplier_name', 'like', '%' . $this->productsearch . '%')
+                ->get()
+                ->toArray();
+        }
+    }
+
+    public function prSearchRowSelect($key)
+    {
+        $this->purchase_memo_no = $this->resultPurchase[$key]->memo_no;
+        $this->psearch = $this->resultPurchase[$key]->memo_no;
+        $this->saleCart = [];
+        $this->saleCheck = [];
+        $this->resultPurchase = [];
+
+    }
+
     public function updatedProductsearch()
     {
         if ($this->productsearch) {
-
-            $result = DB::table('product as p')
-                ->where('barcode', $this->productsearch)
-                ->get()
-                ->toArray();
-
-            if ($result) {
-                $this->resultProducts = $result;
-                $this->resultAppend(0);
-            } else {
-
-                $this->resultProducts = DB::table('vw_product_info as p')
-                    ->where(DB::raw('lower(p.name)'), 'like', '%' . strtolower($this->productsearch) . '%')
-                    ->orWhere('p.code', 'like', '%' . $this->productsearch . '%')
-                    ->orWhere('p.barcode', 'like', '%' . $this->productsearch . '%')
-                    ->get()
+            if ($this->purchase_memo_no) {
+                $result = DB::table('vw_product_stock_by_purchase as p')
+                    ->where('p.memo_no', $this->purchase_memo_no)
+                    ->where('p.barcode', $this->productsearch)
+                    ->get(['p.current_stock as stock', 'p.*'])
                     ->toArray();
-            }
 
-            $this->searchSelect = -1;
+                if ($result) {
+                    $this->resultProducts = $result;
+                    $this->resultAppend(0);
+                } else {
+                    // dd($this->purchase_memo_no);
+                    $this->resultProducts = DB::table('vw_product_stock_by_purchase as p')
+                        ->where('p.memo_no', $this->purchase_memo_no)
+                        ->where(DB::raw('lower(p.name)'), 'like', '%' . strtolower($this->productsearch) . '%')
+                        ->get(['p.current_stock as stock', 'p.*'])
+                        ->toArray();
+                }
+
+                $this->searchSelect = -1;
+            }
         } else {
             $this->resetProductSearch();
         }
@@ -70,12 +105,12 @@ class PurchaseForm extends Component
         $this->countProduct = count($this->resultProducts);
     }
 
-    public function mount($purchase_id = null)
+    public function mount($sale_id = null)
     {
-        if ($purchase_id) {
-            $this->purchase_id = $purchase_id;
-            $tran_mst = DB::table('purchase')
-                ->where('id', $purchase_id)
+        if ($sale_id) {
+            $this->sale_id = $sale_id;
+            $tran_mst = DB::table('sale')
+                ->where('id', $sale_id)
                 ->first();
             // dd($tran_mst);
             $this->state['net_total'] = $tran_mst->net_total;
@@ -83,19 +118,22 @@ class PurchaseForm extends Component
             $this->state['qty'] = $tran_mst->qty;
             $this->state['shipping'] = $tran_mst->shipping;
             $this->state['status'] = $tran_mst->status;
-            $this->state['supplier_id'] = $tran_mst->supplier_id;
+            $this->state['customer_id'] = $tran_mst->customer_id;
             $this->state['remarks'] = $tran_mst->remarks;
             $this->state['date'] = Carbon::parse($tran_mst->date)->toDateString();
 
             $this->pay_amt = $tran_mst->paid;
             $this->due = $tran_mst->due;
 
-            $this->edit_select['supplier_id'] = $tran_mst->supplier_id;
+            $this->edit_select['customer_id'] = $tran_mst->customer_id;
+            $this->purchase_memo_no = $tran_mst->lot_ref_memo;
+            $this->psearch = $tran_mst->lot_ref_memo;
+            $this->state['sale_type'] = $tran_mst->sale_type;
 
             $resultPay = DB::table('voucher')
-                ->where('tran_type', 'pr')
-                ->where('cash_type','!=', '')
-                ->where('ref_id', $purchase_id)
+                ->where('tran_type', 'sl')
+                ->where('cash_type', '!=', '')
+                ->where('ref_id', $sale_id)
                 ->first();
 
             if ($resultPay) {
@@ -105,7 +143,6 @@ class PurchaseForm extends Component
                     $this->paymentState['description'] = $resultPay->description;
                     $this->paymentState['tran_no'] = $resultPay->tran_no;
                 }
-
             } else {
                 $this->paymentState['pay_mode'] = 1;
             }
@@ -114,10 +151,15 @@ class PurchaseForm extends Component
             // dd($resultPay);
 
             $resultDtls = DB::table('product_tran_dtl as p')
-                ->where('type','pr')
-                ->where('p.ref_id', $purchase_id)
+                ->where('type', 'sl')
+                ->where('p.ref_id', $sale_id)
                 ->leftJoin('vw_product_info as pr', function ($join) {
                     $join->on('pr.product_id', '=', 'p.product_id');
+                })
+                ->leftJoin('vw_product_stock_by_purchase as prs', function ($join) {
+                    $join->on('prs.product_id', '=', 'p.product_id')
+                        ->where('prs.memo_no', $this->purchase_memo_no)
+                        ;
                 })
                 ->get([
                     'p.rate',
@@ -126,21 +168,22 @@ class PurchaseForm extends Component
                     'p.quantity',
                     'pr.name',
                     'pr.variant_description',
+                    'prs.current_stock as stock'
                 ]);
 
-            // dd($resultDtls);
-
             foreach ($resultDtls as $resultDtl) {
-                $this->purchaseCart[] = [
+                $this->saleCart[] = [
                     'name' => $resultDtl->name,
                     'variant_description' => $resultDtl->variant_description,
-                    'purchase_price' => $resultDtl->rate,
+                    'sale_price' => $resultDtl->rate,
                     'line_total' => $resultDtl->total,
                     'qty' => $resultDtl->quantity,
+                    'old_qty' => $resultDtl->quantity,
                     'product_id' => $resultDtl->product_id,
+                    'stock' => $resultDtl->stock,
                 ];
 
-                $this->purchaseCheck[] = $resultDtl->product_id;
+                $this->saleCheck[] = $resultDtl->product_id;
             }
 
 
@@ -150,12 +193,13 @@ class PurchaseForm extends Component
             $this->state['total'] = 0;
             $this->state['qty'] = 0;
             $this->state['status'] = 1;
+            $this->state['sale_type'] = 2;
             $this->state['date'] = Carbon::now()->toDateString();
             $this->paymentState['pay_mode'] = 1;
         }
 
 
-        $this->suppliersAll();
+        $this->customersAll();
         $this->paymentMethodAll();
     }
 
@@ -184,41 +228,49 @@ class PurchaseForm extends Component
 
     public function resultAppend($key)
     {
+        // dd($this->resultProducts);
         $search = @$this->resultProducts[$key]->product_id;
 
-        if ($search) {
-            $valid = in_array($search, $this->purchaseCheck);
-            if (!$valid) {
-                $pricing = $this->resultProducts[$key];
-
-                if ($pricing) {
-
-                    $this->purchaseCheck[] = $search;
-
-                    $line_total = (float)$pricing->purchase_price;
-
-                    $this->purchaseCart[] = [
-                        'name' => @$this->resultProducts[$key]->name,
-                        'variant_description' => @$this->resultProducts[$key]->variant_description,
-                        'purchase_price' => $pricing->purchase_price,
-                        'line_total' => $line_total,
-                        'qty' => 1,
-                        'product_id' => $search,
-                    ];
-
-                    $this->grandCalculation();
-
-                    $this->productsearch = '';
-                    $this->resetProductSearch();
-                } else {
-                    $this->resetProductSearch();
-                    session()->flash('warning', 'Pricing has not added to selected product');
-                }
-            } else {
-                $this->resetProductSearch();
-                session()->flash('error', 'Product already added to cart');
-            }
+        if (!$search) {
+            return 0;
         }
+
+        $stock = $this->resultProducts[$key]->stock;
+
+        if ($stock <= 0) {
+            session()->flash('error', 'Product has no stock');
+            return 0;
+        }
+
+        $valid = in_array($search, $this->saleCheck);
+        if ($valid) {
+            $this->resetProductSearch();
+            session()->flash('error', 'Product already added to cart');
+            return 0;
+        }
+
+        $this->saleCheck[] = $search;
+        $pricing = $this->resultProducts[$key];
+
+
+        $rate = DB::table('product')
+                ->where('id', $search)
+                ->first();
+
+        $line_total = (float)$rate->sale_price;
+        $this->saleCart[] = [
+            'name' => $pricing->name,
+            'variant_description' => $pricing->variant_description,
+            'sale_price' => $rate->sale_price,
+            'line_total' => $line_total,
+            'qty' => 1,
+            'product_id' => $search,
+            'stock' => $stock,
+        ];
+
+        $this->grandCalculation();
+        $this->productsearch = '';
+        $this->resetProductSearch();
     }
 
     public function hideDropdown()
@@ -236,17 +288,23 @@ class PurchaseForm extends Component
 
     public function removeItem($key, $id)
     {
-        unset($this->purchaseCart[$key]);
-        $del_key = array_search($id, $this->purchaseCheck);
-        unset($this->purchaseCheck[$del_key]);
+        unset($this->saleCart[$key]);
+        $del_key = array_search($id, $this->saleCheck);
+        unset($this->saleCheck[$del_key]);
         $this->grandCalculation();
     }
 
     public function calculation($key)
     {
-        $qty = (float)$this->purchaseCart[$key]['qty'] ?? 0;
-        $mrp_rate = (float)$this->purchaseCart[$key]['purchase_price'] ?? 0;
-        $this->purchaseCart[$key]['line_total'] = ($qty * $mrp_rate);
+
+        $stock = (float)$this->saleCart[$key]['stock'] ?? 0;
+        if ((float)$this->saleCart[$key]['qty'] > $stock) {
+            session()->flash('error', "Product has only $stock stock available on this lot");
+            (float)$this->saleCart[$key]['qty'] = $stock;
+        }
+        $qty = (float)$this->saleCart[$key]['qty'] ?? 0;
+        $mrp_rate = (float)$this->saleCart[$key]['sale_price'] ?? 0;
+        $this->saleCart[$key]['line_total'] = ($qty * $mrp_rate);
         $this->grandCalculation();
     }
 
@@ -257,7 +315,7 @@ class PurchaseForm extends Component
         $shipping = $this->state['shipping'] ?? 0;
         $discount = $this->state['discount'] ?? 0;
 
-        foreach ($this->purchaseCart as $value) {
+        foreach ($this->saleCart as $value) {
 
             $sub_total += (float)$value['line_total'] ?? 0;
             $total_qty += (float)$value['qty'] ?? 0;
@@ -266,7 +324,6 @@ class PurchaseForm extends Component
         $this->state['net_total'] = number_format($sub_total, 2, '.', '') ?? 0;
 
         $this->state['qty'] = $total_qty ?? 0;
-
         $total = (float)$shipping + (float)$sub_total - (float)$discount;
         $this->state['total'] = number_format($total, 2, '.', '');
 
@@ -285,19 +342,18 @@ class PurchaseForm extends Component
         Validator::make($this->state, [
             'date' => 'required|date',
             'status' => 'required|numeric',
-            'supplier_id' => 'required|numeric',
+            'customer_id' => 'required|numeric',
             'total' => 'required|numeric',
             'net_total' => 'required|numeric',
 
         ])->validate();
 
-        if (count($this->purchaseCart) > 0) {
+        if (count($this->saleCart) > 0) {
 
             // dd(
-            //     $this->pay_amt,
             //     $this->state,
             //     $this->paymentState,
-            //     $this->purchaseCart,
+            //     $this->saleCart,
             // );
 
             $this->state['created_by'] = Auth::user()->id;
@@ -308,16 +364,19 @@ class PurchaseForm extends Component
 
             $this->dispatch($this->action, [
                 'state' => $this->state,
-                'purchaseCart' => $this->purchaseCart,
+                'saleCart' => $this->saleCart,
                 'pay_amt' => $this->pay_amt,
                 'paymentState' => $this->paymentState,
+                'purchase_memo_no' => $this->purchase_memo_no,
             ]);
         } else {
             session()->flash('error', '*At least one product need to added');
         }
     }
+
+
     public function render()
     {
-        return view('livewire.dashboard.purchase.purchase-form');
+        return view('livewire.dashboard.sale.lot-sale.lot-sale-form');
     }
 }

@@ -1,42 +1,43 @@
 <?php
 
-namespace App\Livewire\Dashboard\Purchase;
+namespace App\Livewire\Dashboard\Sale\LotSale;
 
+use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Livewire\Attributes\On;
 
-class PurchaseReturnCreate extends Component
+class LotSaleCreate extends Component
 {
-    #[On('savePurchaseReturn')]
-    public function savePurchase($formData)
+    #[On('saveSale')]
+    public function saveSale($formData)
     {
         // dd($formData);
         DB::beginTransaction();
         try {
-            $formData['state']['ref_memo_no'] =  $formData['ref_memo_no'];
-
-            $tran_id = DB::table('purchase_return')
+            $formData['state']['lot_ref_memo'] = $formData['purchase_memo_no'];
+            $tran_id = DB::table('sale')
                 ->insertGetId($formData['state']);
 
-            $purchase = DB::table('purchase_return')
+
+            $sale = DB::table('sale')
                 ->where('id', $tran_id)
                 ->first();
 
-            foreach ($formData['purchaseCart'] as $key => $value) {
+
+            foreach ($formData['saleCart'] as $key => $value) {
                 DB::table('product_tran_dtl')->insert([
                     'branch_id' => 1,
                     'product_id' => $value['product_id'],
-                    'quantity' => $value['return_qty'],
-                    'rate' => $value['purchase_price'],
+                    'quantity' => $value['qty'],
+                    'rate' => $value['sale_price'],
                     'total' => $value['line_total'],
                     'created_by' => Auth::user()->id,
                     'ref_id' => $tran_id,
-                    'ref_memo' => $formData['state']['ref_memo_no'],
-                    'return_ref_memo' => $purchase->memo_no,
-                    'type' => 'prt',
-                    'tran_user_id' => $formData['supplier_id'],
+                    'ref_memo' => $sale->memo_no,
+                    'type' => 'sl',
+                    'lot_ref_memo' => $formData['purchase_memo_no'],
+                    'tran_user_id' => $formData['state']['customer_id'],
                 ]);
             }
 
@@ -44,14 +45,13 @@ class PurchaseReturnCreate extends Component
             DB::table('voucher')->insert([
                 'date' => $formData['state']['date'],
                 'voucher_type' => 'CR',
-                'tran_type' => 'prt',
-                'description' => 'Initial voucher for '.$purchase->memo_no,
+                'tran_type' => 'sl',
+                'description' => 'Initial voucher for '.$sale->memo_no,
                 'amount' => $formData['state']['total'],
                 'created_by' => Auth::user()->id,
                 'ref_id' => $tran_id,
-                'tran_user_id' => $formData['supplier_id'],
-                'ref_memo' => $formData['state']['ref_memo_no'],
-                'return_ref_memo' => $purchase->memo_no,
+                'tran_user_id' => $formData['state']['customer_id'],
+                'ref_memo' => $sale->memo_no,
 
             ]);
 
@@ -65,18 +65,17 @@ class PurchaseReturnCreate extends Component
                     'tran_no' => @$formData['paymentState']['tran_no'] ?? '',
                     'amount' => $formData['pay_amt'],
                     'created_by' => Auth::user()->id,
-                    'tran_type' => 'prt',
+                    'tran_type' => 'sl',
                     'ref_id' => $tran_id,
-                    'tran_user_id' => $formData['supplier_id'],
-                    'ref_memo' => $formData['state']['ref_memo_no'],
-                    'return_ref_memo' => $purchase->memo_no,
-                    'cash_type' => 'IN',
+                    'tran_user_id' => $formData['state']['customer_id'],
+                    'ref_memo' => $sale->memo_no,
+                    'cash_type' => 'OUT',
                 ]);
             }
             DB::commit();
 
-            session()->flash('status', 'Purchase returnd successfully');
-            return $this->redirect(route('purchase-return'), navigate: true);
+            session()->flash('status', 'New sale created successfully');
+            return $this->redirect(route('sale'), navigate: true);
 
         } catch (\Exception $exception) {
             DB::rollback();
@@ -85,6 +84,6 @@ class PurchaseReturnCreate extends Component
     }
     public function render()
     {
-        return view('livewire.dashboard.purchase.purchase-return-create');
+        return view('livewire.dashboard.sale.lot-sale.lot-sale-create');
     }
 }

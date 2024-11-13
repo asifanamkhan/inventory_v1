@@ -74,13 +74,6 @@
                 </a>
             </div> --}}
 
-
-            <div class="col-md-8" style="text-align: right">
-                <a wire:navigate href='{{route('purchase-return-create') }}' type="button" class="btn btn-primary">Create new
-                    return</a>
-            </div>
-
-
             {{-- modal --}}
             <x-large-modal class='payment'>
                 <livewire:dashboard.purchase.purchase-return-payment>

@@ -1,16 +1,16 @@
-@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 /* @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700"; */
 
-/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Inter', sans-serif;
     background-color: rgb(241 245 249 / 1);
+    /* text-transform: uppercase !important; */
 
 }
 
 
 p {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Inter', sans-serif;
     /* font-size: 0.92em; */
     font-weight: 300;
     line-height: 1.7em;
@@ -26,12 +26,21 @@ a:focus {
 }
 
 .navbar {
-    padding: 0 10px;
+    padding: 2px;
     background: #fff;
     border: none;
     border-radius: 0;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.main-contant{
+    padding: 0 20px 10px 20px;
+}
+
+.footer{
+    padding: 15px;
+    font-size: 12px;
 }
 
 .navbar-btn {
@@ -40,7 +49,7 @@ a:focus {
     border: none;
 }
 
-.dropdown-toggle::after {
+.dropdown-toggle-custom::after {
     display: inline-block; /* Show the arrow icon */
     margin-left: 8px; /* Space between image and arrow */
 }
@@ -51,10 +60,13 @@ a:focus {
     vertical-align: middle; /* Align the image vertically */
 }
 .drop-nav-menu {
-    left: -80px; /* Adjust to move the dropdown menu to the left */
+    left: -90px; /* Adjust to move the dropdown menu to the left */
     right: auto; /* Prevent it from aligning on the right */
 }
 
+.btn-outline-success{
+    background: none !important;
+}
 
 .line {
     width: 100%;
@@ -72,8 +84,10 @@ table thead tr td {
 }
 
 .bg-sidebar {
-    background-image: linear-gradient(195deg, #49a3f1, #1a73e8) !important;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.069), 0 7px 10px -5px #72aefb !important;
+    text-transform: uppercase;
+    /* background-image: linear-gradient(195deg, #49a3f1, #1a73e8) !important; */
+    background: #3C50E0;
+    /* box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.069), 0 7px 10px -5px #72aefb !important; */
 }
 
 .card {
@@ -111,7 +125,7 @@ table thead tr td {
 }
 
 #sidebar .sidebar-header {
-    padding: 15px 0;
+    padding: 9px 0;
     background: #1A2342;
     /* background: #05244a; */
     /* background: #4e3cdc; */
@@ -166,11 +180,11 @@ a[data-toggle="collapse"] {
     position: relative;
 }
 
-.dropdown-toggle::after {
+.dropdown-toggle-sidebar:after {
     display: block;
     position: absolute;
     top: 50%;
-    right: 20px;
+    right: 5px;
     transform: translateY(-50%);
 }
 
@@ -201,7 +215,6 @@ ul.CTAs a {
 
 #content {
     width: 100%;
-    padding: 10px 20px 20px 20px;
     min-height: 100vh;
     transition: all 0.3s;
 
@@ -215,6 +228,7 @@ ul.CTAs a {
 
 .btn {
     border: none !important;
+    text-transform: uppercase;
 
 }
 
@@ -261,19 +275,12 @@ ul.CTAs a {
 }
 
 
-/* .form-control, .form-select {
-    padding: 0.65rem 1.25rem !important;
-
-} */
-
 .form-check-input {
     height: 1.5rem !important;
     width: 1.5rem !important;
 }
 
-.form-control:focus,
-.form-select:focus,
-form-check-input:focus {
+.form-control:focus,.form-select:focus,.form-check-input:focus {
     box-shadow: none !important;
     border-color: #3C50E0 !important;
     transition: border-color 0.3s ease-in-out !important;

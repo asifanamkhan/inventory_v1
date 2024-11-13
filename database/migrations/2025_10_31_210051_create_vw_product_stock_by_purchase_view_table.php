@@ -20,10 +20,9 @@ return new class extends Migration
                 prod.name,
                 prod.variant_description,
                 prod.barcode,
-                prod.sale_price,
 
-                (SUM(CASE WHEN pt.type = 'pr' THEN pt.quantity ELSE 0 END) -- Total purchase quantity
-                - SUM(CASE WHEN pt.type = 'prt' THEN pt.quantity ELSE 0 END) -- Subtract purchase return quantity
+                (SUM(CASE WHEN pt.type = 'pr'  THEN pt.quantity ELSE 0 END) -- Total purchase quantity
+                - SUM(CASE WHEN pt.type = 'prt'  THEN pt.quantity ELSE 0 END) -- Subtract purchase return quantity
                 - SUM(CASE WHEN pt.type = 'sl' AND pt.lot_ref_memo = p.memo_no THEN pt.quantity ELSE 0 END)  -- Subtract sale quantity using lot_ref_memo
                 + SUM(CASE WHEN pt.type = 'slrt' AND pt.lot_ref_memo = p.memo_no THEN pt.quantity ELSE 0 END) -- Add sale return quantity using lot_ref_memo
                 ) AS current_stock,
@@ -48,7 +47,6 @@ return new class extends Migration
                 prod.name,
                 prod.variant_description,
                 prod.barcode,
-                prod.sale_price,
                 pt.product_id;
         ");
     }

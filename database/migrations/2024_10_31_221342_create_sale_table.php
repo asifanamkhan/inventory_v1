@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('date');
             $table->string('memo_no')->unique();
+            $table->string('lot_ref_memo')->nullable();
             $table->integer('customer_id');
             $table->integer('sale_type')->default(1);
             $table->integer('branch_id');

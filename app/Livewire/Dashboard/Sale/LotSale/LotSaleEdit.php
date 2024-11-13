@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Livewire\Dashboard\Sale;
+namespace App\Livewire\Dashboard\Sale\LotSale;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 
-class SaleEdit extends Component
+class LotSaleEdit extends Component
 {
     public $sale_id;
     public function mount($sale_id)
@@ -69,6 +69,6 @@ class SaleEdit extends Component
     }
     public function render()
     {
-        return view('livewire.dashboard.sale.sale-edit');
+        return view('livewire.dashboard.sale.lot-sale.lot-sale-edit');
     }
 }

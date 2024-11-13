@@ -262,7 +262,7 @@
 
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                     <a class="dropdown-item"
-                                        href="{{ route('sale-edit', $sale->sale_id) }}">
+                                        href="{{ route('lot-sale-edit', $sale->sale_id) }}">
                                         <i class="fa fa-edit"></i> <span>Edit</span>
                                     </a>
                                     <a class="dropdown-item d-flex gap-1" wire:navigate
@@ -282,7 +282,7 @@
                                         href="{{ route('sale-invoice', $sale->sale_id) }}">
                                         <i class="fas fa-print"></i> Print
                                     </a>
-                                    <a class="dropdown-item" href="#">
+                                    <a class="dropdown-item" href="{{ route('sale-return-form', $sale->sale_id) }}">
                                         <i class="fa-solid fa-rotate-left"></i> Return
                                     </a>
                                     <a class="dropdown-item" href="#">

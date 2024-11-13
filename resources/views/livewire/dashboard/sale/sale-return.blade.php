@@ -4,36 +4,30 @@
     </div>
     <div style="display: flex; justify-content: space-between; align-items:center">
         <h3 style="padding: 0px 5px 10px 5px;">
-            <i class="fa-solid fa-cart-shopping"></i> Purchase
+            <i class="fa-solid fa-cart-shopping"></i> Sale return
         </h3>
         <nav aria-label="breadcrumb" style="padding-right: 5px">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#">Purchase</a></li>
-                <li class="breadcrumb-item active"><a wire:navigate href="{{ route('purchase') }}"
-                        style="color: #3C50E0">purchase list</a></li>
+                <li class="breadcrumb-item"><a href="#">Sale return</a></li>
+                <li class="breadcrumb-item active"><a wire:navigate href="{{ route('sale-return') }}"
+                        style="color: #3C50E0">return list</a></li>
             </ol>
         </nav>
     </div>
     <div class="row" style="padding: 0px 8px 2px">
         <p class="col-auto">
-            Total purchase:
+            Total return:
             <span class="badge bg-primary">
-                {{ number_format($purchaseGrantAmt, 2, '.', ',') }}
-            </span>
-        </p>
-        <p class="col-auto">
-            Total purchase return:
-            <span class="badge bg-warning">
-                {{ number_format($purchaseRtAmt, 2, '.', ',') }}
+                {{ number_format($saleGrantAmt, 2, '.', ',') }}
             </span>
         </p>
         <p class="col-auto">
             Total paid:
-            <span class='badge bg-success'>{{ number_format($purchasePaidAmt, 2, '.', ',') }}</span>
+            <span class='badge bg-success'>{{ number_format($salePaidAmt, 2, '.', ',') }}</span>
         </p>
         <p class="col-auto">
             Total due:
-            <span class='badge bg-danger'>{{ number_format($purchaseDueAmt, 2, '.', ',') }}</span>
+            <span class='badge bg-danger'>{{ number_format($saleDueAmt, 2, '.', ',') }}</span>
         </p>
     </div>
 
@@ -80,130 +74,72 @@
                 </a>
             </div> --}}
 
-
-            <div class="col-md-8" style="text-align: right">
-                <a wire:navigate href='{{route('purchase-create') }}' type="button" class="btn btn-sm btn-success">
-                  <i class="fa-solid fa-plus"></i>  new purchase</a>
-            </div>
-
-
             {{-- modal --}}
-            <x-large-modal class='payment'>
-                <livewire:dashboard.purchase.purchase-payment>
-            </x-large-modal>
+            {{-- <x-large-modal class='payment'>
+                <livewire:dashboard.sale.sale-return-payment>
+            </x-large-modal> --}}
 
         </div>
         <div class="responsive-table" style="font-size: 0.9em !important;">
-            <table class="table table-bordered table-hover" >
+            <table class="table table-bordered table-hover">
                 <thead>
-                    <tr class="bg-sidebar" style="">
-                        <td style="">
-
-                        </td>
+                    <tr class="bg-sidebar">
                         <td style="">#</td>
                         <td style="width:9%">Date</td>
                         <td style="width:11%">Memo no</td>
-                        <td style="width:15%">Supplier</td>
-                        <td style="width:9% ;text-align: center">Status</td>
-                        <td style="text-align: center">Total</td>
-                        <td style="text-align: center">Return</td>
+                        <td style="width:15%">Customer</td>
+                        <td style="width:9% ;text-align: center">PR status</td>
+                        <td style="text-align: center">Grand amt</td>
                         <td style="text-align: center">Paid amt</td>
                         <td style="text-align: center">Due amt</td>
                         <td style="text-align: center">Payment</td>
-                        <td  class="text-center">Action</td>
-
+                        <td class="text-center">Action</td>
                     </tr>
-
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>
-                            <input wire:model.live.debounce.500ms='selectPageRows' type="checkbox"
-                                class="form-check-input">
-                        </td>
-                        <td>
-
-                        </td>
-                        <td>
-
-                        </td>
-                        <td>
-                            <input placeholder="search" wire:model.live.debounce.500ms='searchMemo' type="text"
-                                class="form-control">
-                        </td>
-                        <td>
-                            <input placeholder="search" wire:model.live.debounce.500ms='searchSupplier' type="text"
-                                class="form-control">
-                        </td>
-                        <td>
-                            <select wire:model.live.debounce='searchStatus' class="form-select">
-                                <option value="">ALL</option>
-                                <option value="1">Received</option>
-                                <option value="2">Partial</option>
-                                <option value="3">Pending</option>
-                                <option value="4">Ordered</option>
-                                <option value="5">Cancled</option>
-                            </select>
-                        </td>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th>
-                            <select wire:model.live='searchPayStatus' class="form-select">
-                                <option value="">ALL</option>
-                                <option value="PAID">PAID</option>
-                                <option value="DUE">DUE</option>
-                            </select>
-                        </th>
-                        <th></th>
-                    </tr>
-                    @if (count($this->resultPurchase) > 0)
-                    @foreach ($this->resultPurchase as $key => $purchase)
+                    @if (count($this->resultSale ) > 0)
+                    @foreach ($this->resultSale as $key => $sale)
                     <tr wire:key='{{ $key }}'>
+
+                        <td>{{ $this->resultSale->firstItem() + $key }}</td>
                         <td>
-                            <input wire:model='selectRows' id='{{ $purchase->purchase_id }}'
-                                value="{{ $purchase->purchase_id }}" type="checkbox" class="form-check-input">
+                            {{ date('d-M-y', strtotime($sale->date)) }}
                         </td>
-                        <td>{{ $this->resultPurchase->firstItem() + $key }}</td>
-                        <td>
-                            {{ date('d-M-y', strtotime($purchase->date)) }}
-                        </td>
-                        <td>{{ $purchase->memo_no }}</td>
-                        <td>{{ $purchase->supplier_name }}</td>
+                        <td>{{ $sale->memo_no }}</td>
+                        <td>{{ @$sale->customer_name }}</td>
                         <td>
                             <select style="
                                 font-size: 0.9em !important;
-                            @if ($purchase->status == 1)
+                            @if ($sale->status == 1)
                                 background: #D4EDDA;
-                            @elseif($purchase->status == 2)
+                            @elseif($sale->status == 2)
                                 background: #FFF3CD;
-                            @elseif($purchase->status == 3)
+                            @elseif($sale->status == 3)
                                 background: #FFF3CD;
-                            @elseif($purchase->status == 4)
+                            @elseif($sale->status == 4)
                                 background: #CCE5FF;
-                            @elseif($purchase->status == 5)
+                            @elseif($sale->status == 5)
                                 background: #F8D7DA;
                             @endif
 
                             " class='form-control select-status' name="" id="">
-                                <option @if ($purchase->status == 1)
+                                <option @if ($sale->status == 1)
                                     selected
                                     @endif value="1">Recieved
                                 </option>
-                                <option @if ($purchase->status == 2)
+                                <option @if ($sale->status == 2)
                                     selected
                                     @endif value="2">Partial
                                 </option>
-                                <option @if ($purchase->status == 3)
+                                <option @if ($sale->status == 3)
                                     selected
                                     @endif value="3">Pending
                                 </option>
-                                <option @if ($purchase->status == 4)
+                                <option @if ($sale->status == 4)
                                     selected
                                     @endif value="4">Ordered
                                 </option>
-                                <option @if ($purchase->status == 5)
+                                <option @if ($sale->status == 5)
                                     selected
                                     @endif value="5">Cancled
                                 </option>
@@ -212,54 +148,54 @@
                         </td>
                         <td style="text-align: right">
                             @php
-                            $grand_total += (float)$purchase->total;
+                            $grand_total += (float)$sale->total;
                             @endphp
-                            {{ number_format($purchase->total, 2, '.', '') }}
+                            {{ number_format($sale->total, 2, '.', '') }}
                         </td>
                         <td style="text-align: right">
                             @php
-                            $rt_total += (float)$purchase->pr_return;
+                            $paid_total += (float)$sale->paid;
                             @endphp
-                            {{ number_format($purchase->pr_return, 2, '.', '') }}
+                            {{ number_format($sale->paid, 2, '.', '') }}
                         </td>
                         <td style="text-align: right">
                             @php
-                            $paid_total += (float)$purchase->paid;
+                            $due = $sale->total - $sale->paid;
+                            $due_total += (float)$due;
                             @endphp
-                            {{ number_format($purchase->paid, 2, '.', '') }}
+                            {{ number_format($due, 2, '.', '') }}
                         </td>
                         <td style="text-align: right">
-                            @php
-
-                            $due_total += (float)$purchase->total_due;
-                            @endphp
-                            {{ number_format($purchase->total_due, 2, '.', '') }}
-                        </td>
-                        <td style="text-align: right; font-size: 1.1em;">
                             <div class="d-flex justify-content-center align-items-center">
-                                @if ($purchase->total_due > 0)
-                                    <span class="badge" style="background: #DC3545;">DUE</span>
-                                @elseif ($purchase->total_due == 0)
-                                    <span class="badge" style="background: #139C49;">PAID</span>
+                                <span style="
+                                font-size: 0.9em;
+                                @if($sale->payment_status == 'PAID')
+                                background: #D4EDDA;
+                                color: #155724;
                                 @else
-                                    <span class="badge" style="background: #DC3545;">OVER DUE</span>
+                                background: #F8D7DA;
+                                color: #721c24;
                                 @endif
-
-
+                                " class="badge badge-pill">
+                                    {{ $sale->payment_status }}
+                                </span>
                             </div>
                         </td>
                         <td style="">
-                            <div class="dropdown">
-                                <button style="font-size:12px; border: 1px solid #009DE4 !important" class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                  Actions
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown show">
+                                <a class="btn btn-sm btn-primary dropdown-toggle" href="#" role="button"
+                                    id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
+                                    Action &nbsp;&nbsp;&nbsp;&nbsp;
+                                </a>
+
+                                {{-- <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                     <a class="dropdown-item"
-                                        href="{{ route('purchase-edit', $purchase->purchase_id) }}">
+                                        href="{{ route('sale-edit', $sale->sale_id) }}">
                                         <i class="fa fa-edit"></i> <span>Edit</span>
                                     </a>
                                     <a class="dropdown-item d-flex gap-1" wire:navigate
-                                        href="{{ route('purchase-details', $purchase->purchase_id) }}">
+                                        href="{{ route('sale-details', $sale->sale_id) }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                             fill="currentColor" class="bi bi-binoculars" viewBox="0 0 16 16">
                                             <path
@@ -267,31 +203,22 @@
                                         </svg>
                                         <span>Details</span>
                                     </a>
-                                    <a @click="$dispatch('purchase-payment', {id: {{ $purchase->purchase_id }}})"
+                                    <a @click="$dispatch('sale-payment', {id: {{ $sale->sale_id }}})"
                                         data-toggle="modal" data-target=".payment" class="dropdown-item" href="#">
-                                        <i class="fa fa-credit-card"></i> Payment
+                                        <i class="fa fa-credit-card"></i> Make payment
                                     </a>
                                     <a target="_blank" class="dropdown-item"
-                                        href="{{ route('purchase-invoice', $purchase->purchase_id) }}">
+                                        href="{{ route('sale-invoice', $sale->sale_id) }}">
                                         <i class="fas fa-print"></i> Print
                                     </a>
-                                    <a class="dropdown-item" href="{{ route('purchase-return-form', $purchase->purchase_id) }}">
+                                    <a class="dropdown-item" href="#">
                                         <i class="fa-solid fa-rotate-left"></i> Return
                                     </a>
                                     <a class="dropdown-item" href="#">
                                         <i class="fa-regular fa-copy"></i> Duplicate
                                     </a>
-                                </div>
-                              </div>
-                            {{-- <div class="dropdown show">
-                                <a style="font-size:12px; border: 1px solid #009DE4 !important" class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" role="button"
-                                    id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
-                                    aria-expanded="false">
-                                     &nbsp;&nbsp;
-                                </a>
-
-
-                            </div> --}}
+                                </div> --}}
+                            </div>
                         </td>
                     </tr>
                     @endforeach
@@ -299,12 +226,9 @@
                 </tbody>
                 <tfoot>
                     <tr style="text-align: right; font-weight:600">
-                        <td colspan="6">Total</td>
+                        <td colspan="5">Total</td>
                         <td>
                             {{ number_format($grand_total, 2, '.', ',') }}
-                        </td>
-                        <td>
-                            {{ number_format($rt_total, 2, '.', ',') }}
                         </td>
                         <td>
                             {{ number_format($paid_total, 2, '.', ',') }}
@@ -317,7 +241,7 @@
                 </tfoot>
             </table>
         </div>
-        <span>{{ $this->resultPurchase->links() }}</span>
+        <span>{{ $this->resultSale->links() }}</span>
     </div>
 </div>
 @script
@@ -328,4 +252,5 @@
 
 </script>
 @endscript
+
 

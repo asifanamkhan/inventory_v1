@@ -32,8 +32,15 @@ return new class extends Migration
             b.id AS branch_id,
             COALESCE(SUM(CASE WHEN v.tran_type = 'pr' AND v.voucher_type = 'CR' THEN v.amount ELSE 0 END), 0) AS paid,
             COALESCE(SUM(CASE WHEN v.tran_type = 'prt' AND v.voucher_type = 'CR' THEN v.amount ELSE 0 END), 0) AS pr_return,
+            COALESCE(SUM(CASE WHEN v.tran_type = 'prt' AND v.voucher_type = 'DR' THEN v.amount ELSE 0 END), 0) AS pr_return_paid,
+
+            p.total - COALESCE(SUM(CASE WHEN v.tran_type = 'pr' AND v.voucher_type = 'CR' THEN v.amount ELSE 0 END), 0)
+            AS purchase_due,
+
             (p.total - COALESCE(SUM(CASE WHEN v.tran_type = 'prt' AND v.voucher_type = 'CR' THEN v.amount ELSE 0 END), 0))
-            - COALESCE(SUM(CASE WHEN v.tran_type = 'pr' AND v.voucher_type = 'CR' THEN v.amount ELSE 0 END), 0) AS due
+            - COALESCE(SUM(CASE WHEN v.tran_type = 'pr' AND v.voucher_type = 'CR' THEN v.amount ELSE 0 END), 0)
+            + COALESCE(SUM(CASE WHEN v.tran_type = 'prt' AND v.voucher_type = 'DR' THEN v.amount ELSE 0 END), 0)
+            AS total_due
 
         FROM
             purchase p
@@ -43,7 +50,7 @@ return new class extends Migration
             suppliers s ON p.supplier_id = s.id
         LEFT JOIN
             branch b ON p.branch_id = b.id
-        
+
         GROUP BY
             p.memo_no, p.id, p.total, p.date, p.shipping, p.qty,
             p.net_total, p.tax, p.discount, p.status,

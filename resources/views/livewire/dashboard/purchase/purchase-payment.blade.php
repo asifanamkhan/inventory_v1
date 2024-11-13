@@ -39,25 +39,45 @@
             <p class="col-auto">
                 Total due:
                 <span class='badge bg-danger'>
-                    {{ number_format($mst['due'], 2, '.', ',') }}
+                    {{ number_format($mst['total_due'], 2, '.', ',') }}
                 </span>
             </p>
         </div>
         @endif
+        @if ($edit)
+            <a style="width: 100%;
+                float: right;
+                text-align: right;
+                color: blue;
+                cursor: pointer;"
+                wire:click='newPayment' >New payment</a>
+        @endif
         <form action="" wire:submit='save'>
             <div style="padding: 5px 15px">
                 <div style="">
+                    @if ($mst && @$mst['pr_return'] > 0)
+                    <div class="form-group mb-3">
+                        <label for="">Payment type<span style="color: red"> *
+                            </span></label>
+                            <select @if ($edit)
+                                disabled
+                            @endif  wire:model='paymentState.pay_type' class="form-select"
+                            id='pay_type'>
+                            <option value="1">Purchase</option>
+                            <option value="2">Purchase return</option>
+                        </select>
+                        @error('pay_mode')
+                        <small class="form-text text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    @endif
                     <div class="form-group mb-3">
                         <label for="">Payment method<span style="color: red"> *
                             </span></label>
                         <select wire:model.live.debounce.500ms='paymentState.pay_mode' class="form-select"
                             id='pay_mode'>
                             @forelse ($payment_methods as $key => $method)
-                            <option {{-- @if ($supplier->st_group_id ==
-                                @$edit_select['edit_group_id'])
-                                selected
-                                @endif --}}
-                                value="{{ $key }}">{{ $method }}
+                            <option value="{{ $key }}">{{ $method }}
                             </option>
                             @empty
                             <option value=""></option>
@@ -74,8 +94,8 @@
                                 type='text' label='Payment Description (Ex. mobile/bank/cheque no)' />
                         </div>
                         <div class="col-md-12">
-                            <x-input required_mark='' wire:model='paymentState.tran_no' name='tran_no'
-                                type='text' label='Transaction number' />
+                            <x-input required_mark='' wire:model='paymentState.tran_no' name='tran_no' type='text'
+                                label='Transaction number' />
                         </div>
                     </div>
                     @endif
@@ -84,7 +104,10 @@
                     steps='0.01' label='Payment amount' />
             </div>
             <div class="mt-1 d-flex justify-content-center">
-                <button class="btn btn-primary">Pay</button>
+                <button class="btn btn-sm btn-primary">
+                    @if ($edit) Update @else Pay @endif
+                </button>
+
             </div>
         </form>
         {{-- <div class="row g-3 mb-3 align-items-center">
@@ -102,7 +125,7 @@
                 </select>
             </div>
         </div> --}}
-        <div class="responsive-table mt-4" style="font-size: 0.9em !important;">
+        <div style="max-height: 500px; overflow-y: scroll" class="responsive-table mt-4" style="font-size: 0.9em !important;">
             <table class="table table-bordered table-hover">
                 <thead>
                     <tr class="bg-sidebar">
@@ -136,7 +159,7 @@
                         </td>
                         <td style="text-align: right">{{ number_format($payment->amount, 2, '.','') }}</td>
                         <td>
-                            <button class="btn btn-sm btn-warning">
+                            <button wire:click='editPayment({{ $payment->id }})' class="btn btn-sm btn-warning">
                                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20px" height="20px"
                                     viewBox="0 0 50 50">
                                     <path fill="white"
@@ -153,6 +176,3 @@
         </div>
     </div>
 </div>
-
-
-

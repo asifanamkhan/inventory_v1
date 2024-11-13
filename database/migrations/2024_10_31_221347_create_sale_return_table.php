@@ -16,6 +16,8 @@ return new class extends Migration
             $table->id();
             $table->string('date');
             $table->string('memo_no')->unique();
+            $table->string('ref_memo_no')->nullable();
+            $table->string('sale_id')->nullable();
             $table->integer('customer_id');
             $table->integer('branch_id');
             $table->double('shipping')->nullable();
@@ -24,6 +26,7 @@ return new class extends Migration
             $table->double('total')->default(0);
             $table->double('paid')->default(0);
             $table->double('due')->default(0);
+            $table->double('tax')->default(0);
             $table->string('payment_status');
             $table->integer('status')->default(1);
             $table->text('remarks')->nullable();

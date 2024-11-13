@@ -41,55 +41,30 @@ class SaleForm extends Component
         return $this->payment_methods = PaymentMethod::$methods;
     }
 
-    public function saleTypeChange(){
-        $this->resultPurchase = [];
-        $this->saleCart = [];
-        $this->saleCheck = [];
-        $this->purchase_memo_no = '';
-        $this->psearch = '';
- 
-    }
-
-    public function updatedPsearch()
-    {
-
-        $result = DB::table('vw_purchase as p')
-            ->where('memo_no', $this->psearch)
-            ->get()
-            ->toArray();
-
-        if ($result) {
-            $this->purchase_memo_no = $this->psearch;
-            $this->resultPurchase = [];
-            $this->saleCart = [];
-            $this->saleCheck = [];
-        } else {
-            $this->resultPurchase = DB::table('vw_purchase as p')
-                ->where(DB::raw('lower(p.memo_no)'), 'like', '%' . strtolower($this->productsearch) . '%')
-                ->orWhere('p.supplier_name', 'like', '%' . $this->productsearch . '%')
-                ->get()
-                ->toArray();
-        }
-    }
-
-    public function prSearchRowSelect($key)
-    {
-        $this->purchase_memo_no = $this->resultPurchase[$key]->memo_no;
-        $this->psearch = $this->resultPurchase[$key]->memo_no;
-        $this->saleCart = [];
-        $this->saleCheck = [];
-        $this->resultPurchase = [];
-
-    }
 
     public function updatedProductsearch()
     {
         if ($this->productsearch) {
-            if ($this->state['sale_type'] == 1) {
-                $this->productWiseSearch();
-            } else {
-                $this->lotWiseSearch();
-            }
+            $result = DB::table('vw_product_info as p')
+            ->where('barcode', $this->productsearch)
+            ->get()
+            ->toArray();
+
+        if ($result) {
+            $this->resultProducts = $result;
+            $this->resultAppend(0);
+        } else {
+
+            $this->resultProducts = DB::table('vw_product_info as p')
+                ->where(DB::raw('lower(p.name)'), 'like', '%' . strtolower($this->productsearch) . '%')
+                ->orWhere('p.code', 'like', '%' . $this->productsearch . '%')
+                ->orWhere('p.barcode', 'like', '%' . $this->productsearch . '%')
+                ->get()
+                ->toArray();
+        }
+
+        $this->searchSelect = -1;
+
         } else {
             $this->resetProductSearch();
         }
@@ -118,6 +93,7 @@ class SaleForm extends Component
             $this->due = $tran_mst->due;
 
             $this->edit_select['customer_id'] = $tran_mst->customer_id;
+
 
             $resultPay = DB::table('voucher')
                 ->where('tran_type', 'sl')
@@ -152,6 +128,7 @@ class SaleForm extends Component
                     'p.quantity',
                     'pr.name',
                     'pr.variant_description',
+                    'pr.stock',
                 ]);
 
             // dd($resultDtls);
@@ -163,7 +140,9 @@ class SaleForm extends Component
                     'sale_price' => $resultDtl->rate,
                     'line_total' => $resultDtl->total,
                     'qty' => $resultDtl->quantity,
+                    'old_qty' => $resultDtl->quantity,
                     'product_id' => $resultDtl->product_id,
+                    'stock' => $resultDtl->stock,
                 ];
 
                 $this->saleCheck[] = $resultDtl->product_id;
@@ -176,7 +155,7 @@ class SaleForm extends Component
             $this->state['total'] = 0;
             $this->state['qty'] = 0;
             $this->state['status'] = 1;
-            $this->state['sale_type'] = 2;
+            $this->state['sale_type'] = 1;
             $this->state['date'] = Carbon::now()->toDateString();
             $this->paymentState['pay_mode'] = 1;
         }
@@ -276,6 +255,11 @@ class SaleForm extends Component
     {
 
         $stock = (float)$this->saleCart[$key]['stock'] ?? 0;
+
+        if($this->sale_id){
+            $stock +=(float)$this->saleCart[$key]['old_qty'];
+        }
+
         if ((float)$this->saleCart[$key]['qty'] > $stock) {
             session()->flash('error', "Product has only $stock stock available");
             (float)$this->saleCart[$key]['qty'] = $stock;
@@ -349,54 +333,6 @@ class SaleForm extends Component
             ]);
         } else {
             session()->flash('error', '*At least one product need to added');
-        }
-    }
-
-    public function productWiseSearch()
-    {
-        $result = DB::table('vw_product_info as p')
-            ->where('barcode', $this->productsearch)
-            ->get()
-            ->toArray();
-
-        if ($result) {
-            $this->resultProducts = $result;
-            $this->resultAppend(0);
-        } else {
-
-            $this->resultProducts = DB::table('vw_product_info as p')
-                ->where(DB::raw('lower(p.name)'), 'like', '%' . strtolower($this->productsearch) . '%')
-                ->orWhere('p.code', 'like', '%' . $this->productsearch . '%')
-                ->orWhere('p.barcode', 'like', '%' . $this->productsearch . '%')
-                ->get()
-                ->toArray();
-        }
-
-        $this->searchSelect = -1;
-    }
-
-    public function lotWiseSearch()
-    {
-        if ($this->purchase_memo_no) {
-            $result = DB::table('vw_product_stock_by_purchase as p')
-                ->where('p.memo_no', $this->purchase_memo_no)
-                ->where('p.barcode', $this->productsearch)
-                ->get(['p.current_stock as stock', 'p.*'])
-                ->toArray();
-
-            if ($result) {
-                $this->resultProducts = $result;
-                $this->resultAppend(0);
-            } else {
-                // dd($this->purchase_memo_no);
-                $this->resultProducts = DB::table('vw_product_stock_by_purchase as p')
-                    ->where('p.memo_no', $this->purchase_memo_no)
-                    ->where(DB::raw('lower(p.name)'), 'like', '%' . strtolower($this->productsearch) . '%')
-                    ->get(['p.current_stock as stock', 'p.*'])
-                    ->toArray();
-            }
-
-            $this->searchSelect = -1;
         }
     }
 

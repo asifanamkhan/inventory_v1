@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('voucher_type')->index();
             $table->string('tran_type')->index();
             $table->string('cash_type')->index()->nullable();
-            $table->integer('first_pay')->default(0);
+            // $table->integer('first_pay')->default(0);
             $table->double('amount');
             $table->string('ref_id')->nullable()->index();
             $table->integer('tran_user_id')->nullable()->index();

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Dashboard\Purchase;
+namespace App\Livewire\Dashboard\Sale;
 
 use App\Service\Payment;
 use App\Service\PaymentMethod;
@@ -11,75 +11,77 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class PurchaseReturnForm extends Component
+class SaleReturnForm extends Component
 {
     public $state = [];
     public $edit_select = [];
-    public $purchase_id;
+    public $sale_id;
     public $document = [];
     public $paymentState = [];
-    public $productsearch, $payment_methods, $ref_memo_no, $supplier_id;
+    public $productsearch, $payment_methods, $ref_memo_no, $customer_id;
     public $resultProducts = [];
-    public $purchaseCart = [];
-    public $purchaseCheck = [];
+    public $saleCart = [];
+    public $saleCheck = [];
     public $searchSelect = -1;
     public $countProduct = 0;
     public $pay_amt, $due, $action;
 
 
-    public function mount($purchase_id = null)
+    public function mount($sale_id = null)
     {
-        // dd($purchase_id);
-        if ($purchase_id) {
-            $this->purchase_id = $purchase_id;
-            $tran_mst = DB::table('purchase')
-                ->where('id', $purchase_id)
+        // dd($sale_id);
+        if ($sale_id) {
+            $this->sale_id = $sale_id;
+            $tran_mst = DB::table('sale')
+                ->where('id', $sale_id)
                 ->first();
-            $purchase_rt = DB::table('purchase_return')
+            $sale_rt = DB::table('sale_return')
                 ->where('ref_memo_no', $tran_mst->memo_no)
                 ->first();
             // dd($tran_mst);
             $this->state['net_total'] = 0;
             $this->state['ref_memo_no'] =  $tran_mst->memo_no;
-            $this->state['total'] = @$purchase_rt->total ?? 0;;
-            $this->state['qty'] = @$purchase_rt->qty ?? 0;
+            $this->state['total'] = @$sale_rt->total ?? 0;;
+            $this->state['qty'] = @$sale_rt->qty ?? 0;
             $this->state['shipping'] = 0;
             $this->state['status'] = $tran_mst->status;
-            $this->state['supplier_id'] = $tran_mst->supplier_id;
+            $this->state['customer_id'] = $tran_mst->customer_id;
             $this->state['remarks'] = $tran_mst->remarks;
             $this->state['date'] = Carbon::parse($tran_mst->date)->toDateString();
 
-            $resultDtls = DB::table('vw_product_stock_by_purchase as p')
-                ->where('p.memo_no', $tran_mst->memo_no)
+            $resultDtls = DB::table('vw_product_tran_dtl as p')
+                ->where('type','sl')
+                ->where('p.ref_id', $sale_id)
                 ->get([
                     'p.product_id',
-                    'p.purchase_qty as quantity',
-                    'p.name',
+                    'p.quantity',
+                    'p.product_name as name',
                     'p.variant_description',
-                    'p.pr_return_qty',
+                    'p.rate',
+                    'p.lot_ref_memo'
                 ]);
 
 
-
             foreach ($resultDtls as $resultDtl) {
-                $rate = DB::table('product_tran_dtl')
+                $qty = DB::table('product_tran_dtl')
                     ->where('product_id', $resultDtl->product_id)
-                    ->where('type' ,'pr')
-                    ->where('ref_id', $purchase_id)
+                    ->where('type' ,'slrt')
+                    ->where('ref_id', $sale_id)
                     ->first();
 
-                $this->purchaseCart[] = [
+                $this->saleCart[] = [
                     'name' => $resultDtl->name,
                     'variant_description' => $resultDtl->variant_description,
-                    'purchase_price' => $rate->rate,
+                    'sale_price' => $resultDtl->rate,
                     'line_total' => 0,
                     'qty' => $resultDtl->quantity,
                     'product_id' => $resultDtl->product_id,
-                    'return_qty' => $resultDtl->pr_return_qty,
+                    'return_qty' => $qty->quantity ?? 0,
                     'is_check' => 0,
+                    'lot_ref_memo' => @$resultDtl->lot_ref_memo,
                 ];
 
-                $this->purchaseCheck[] = $resultDtl->product_id;
+                $this->saleCheck[] = $resultDtl->product_id;
             }
 
             $this->state['date'] = Carbon::now()->toDateString();
@@ -90,13 +92,13 @@ class PurchaseReturnForm extends Component
 
 
 
-    public function purchaseActive($key)
+    public function saleActive($key)
     {
-        if ($this->purchaseCart[$key]['is_check'] == true) {
-            $this->purchaseCart[$key]['is_check'] = 1;
+        if ($this->saleCart[$key]['is_check'] == true) {
+            $this->saleCart[$key]['is_check'] = 1;
         } else {
-            $this->purchaseCart[$key]['is_check'] = 0;
-            $this->purchaseCart[$key]['return_qty'] =  '';
+            $this->saleCart[$key]['is_check'] = 0;
+            $this->saleCart[$key]['return_qty'] =  '';
         }
         $this->calculation($key);
     }
@@ -110,22 +112,22 @@ class PurchaseReturnForm extends Component
 
     public function removeItem($key, $id)
     {
-        unset($this->purchaseCart[$key]);
-        $del_key = array_search($id, $this->purchaseCheck);
-        unset($this->purchaseCheck[$del_key]);
+        unset($this->saleCart[$key]);
+        $del_key = array_search($id, $this->saleCheck);
+        unset($this->saleCheck[$del_key]);
         $this->grandCalculation();
     }
 
     public function calculation($key)
     {
-        $qty = (float)$this->purchaseCart[$key]['return_qty'] ?? 0;
-        if($qty > $this->purchaseCart[$key]['qty']){
-            session()->flash('error', 'Return qty cant bigger than purchase qty');
-            $qty = $this->purchaseCart[$key]['qty'];
-            $this->purchaseCart[$key]['return_qty'] = $qty;
+        $qty = (float)$this->saleCart[$key]['return_qty'] ?? 0;
+        if($qty > $this->saleCart[$key]['qty']){
+            session()->flash('error', 'Return qty cant bigger than sale qty');
+            $qty = $this->saleCart[$key]['qty'];
+            $this->saleCart[$key]['return_qty'] = $qty;
         }
-        $mrp_rate = (float)$this->purchaseCart[$key]['purchase_price'] ?? 0;
-        $this->purchaseCart[$key]['line_total'] = ($qty * $mrp_rate);
+        $mrp_rate = (float)$this->saleCart[$key]['sale_price'] ?? 0;
+        $this->saleCart[$key]['line_total'] = ($qty * $mrp_rate);
         $this->grandCalculation();
     }
 
@@ -136,7 +138,7 @@ class PurchaseReturnForm extends Component
         $shipping = $this->state['shipping'] ?? 0;
         $discount = $this->state['discount'] ?? 0;
 
-        foreach ($this->purchaseCart as $value) {
+        foreach ($this->saleCart as $value) {
 
             $sub_total += (float)$value['line_total'] ?? 0;
             $total_qty += (float)$value['return_qty'] ?? 0;
@@ -170,12 +172,12 @@ class PurchaseReturnForm extends Component
 
         ])->validate();
 
-        if (count($this->purchaseCart) > 0) {
+        if (count($this->saleCart) > 0) {
 
             // dd(
             //     $this->state,
             //     $this->paymentState,
-            //     $this->purchaseCart,
+            //     $this->saleCart,
             // );
 
             $this->state['created_by'] = Auth::user()->id;
@@ -188,64 +190,65 @@ class PurchaseReturnForm extends Component
             DB::beginTransaction();
             try {
 
-                $purchase = DB::table('purchase_return')
+                $sale = DB::table('sale_return')
                     ->where('ref_memo_no', $this->state['ref_memo_no'])
                     ->first();
 
-                if ($purchase) {
+                if ($sale) {
 
-                    DB::table('purchase_return')
+                    DB::table('sale_return')
                         ->where('ref_memo_no', $this->state['ref_memo_no'])
                         ->update($this->state);
                     DB::table('product_tran_dtl')
-                        ->where('type', 'prt')
-                        ->where('ref_id', $purchase->id)
+                        ->where('type', 'slrt')
+                        ->where('ref_id', $sale->id)
                         ->delete();
 
                     DB::table('voucher')
-                        ->where('tran_type', 'prt')
-                        ->where('voucher_type', 'CR')
-                        ->where('return_ref_memo', $purchase->memo_no)
+                        ->where('tran_type', 'slrt')
+                        ->where('voucher_type', 'DR')
+                        ->where('return_ref_memo', $sale->memo_no)
                         ->update([
                             'amount' => $this->state['total'],
                         ]);
                 } else {
-                    $tran_id = DB::table('purchase_return')
+                    $tran_id = DB::table('sale_return')
                         ->insertGetId($this->state);
 
-                    $purchase = DB::table('purchase_return')
+                    $sale = DB::table('sale_return')
                         ->where('id', $tran_id)
                         ->first();
 
                     DB::table('voucher')->insert([
                         'date' => $this->state['date'],
-                        'voucher_type' => 'CR',
-                        'tran_type' => 'prt',
-                        'description' => 'Initial voucher for ' . $purchase->memo_no,
+                        'voucher_type' => 'DR',
+                        'tran_type' => 'slrt',
+                        'description' => 'Initial voucher for ' . $sale->memo_no,
                         'amount' => $this->state['total'],
                         'created_by' => Auth::user()->id,
                         'ref_id' => $tran_id,
-                        'tran_user_id' => $this->supplier_id,
+                        'tran_user_id' => $this->customer_id,
                         'ref_memo' => $this->state['ref_memo_no'],
-                        'return_ref_memo' => $purchase->memo_no,
+                        'return_ref_memo' => $sale->memo_no,
 
                     ]);
                 }
 
 
-                foreach ($this->purchaseCart as $key => $value) {
+                foreach ($this->saleCart as $key => $value) {
                     DB::table('product_tran_dtl')->insert([
                         'branch_id' => 1,
                         'product_id' => $value['product_id'],
                         'quantity' => $value['return_qty'],
-                        'rate' => $value['purchase_price'],
+                        'rate' => $value['sale_price'],
                         'total' => $value['line_total'],
                         'created_by' => Auth::user()->id,
-                        'ref_id' => @$tran_id ?? $purchase->id,
+                        'ref_id' => @$tran_id ?? $sale->id,
                         'ref_memo' => $this->state['ref_memo_no'],
-                        'return_ref_memo' => $purchase->memo_no,
-                        'type' => 'prt',
-                        'tran_user_id' => $this->supplier_id,
+                        'return_ref_memo' => $sale->memo_no,
+                        'type' => 'slrt',
+                        'tran_user_id' => $this->customer_id,
+                        'lot_ref_memo' => $value['lot_ref_memo'],
                     ]);
                 }
 
@@ -255,8 +258,8 @@ class PurchaseReturnForm extends Component
 
                 DB::commit();
 
-                session()->flash('status', 'Purchase returnd successfully');
-                return $this->redirect(route('purchase-return'), navigate: true);
+                session()->flash('status', 'Sale returnd successfully');
+                return $this->redirect(route('sale-return'), navigate: true);
             } catch (\Exception $exception) {
                 DB::rollback();
                 session()->flash('error', $exception);
@@ -267,6 +270,6 @@ class PurchaseReturnForm extends Component
     }
     public function render()
     {
-        return view('livewire.dashboard.purchase.purchase-return-form');
+        return view('livewire.dashboard.sale.sale-return-form');
     }
 }

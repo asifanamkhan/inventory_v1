@@ -16,6 +16,7 @@ return new class extends Migration
         CREATE VIEW vw_sale AS
             SELECT
                 p.memo_no,
+                p.lot_ref_memo,
                 p.id AS sale_id,
                 p.total,
                 p.date,
@@ -32,8 +33,16 @@ return new class extends Migration
                 b.id AS branch_id,
                 COALESCE(SUM(CASE WHEN v.tran_type = 'sl' AND v.voucher_type = 'DR' THEN v.amount ELSE 0 END), 0) AS paid,
                 COALESCE(SUM(CASE WHEN v.tran_type = 'slrt' AND v.voucher_type = 'DR' THEN v.amount ELSE 0 END), 0) AS sl_return,
+                COALESCE(SUM(CASE WHEN v.tran_type = 'slrt' AND v.voucher_type = 'CR' THEN v.amount ELSE 0 END), 0) AS sl_return_paid,
+
+                 p.total - COALESCE(SUM(CASE WHEN v.tran_type = 'sl' AND v.voucher_type = 'DR' THEN v.amount ELSE 0 END), 0)
+                 AS sale_due,
+
                 (p.total - COALESCE(SUM(CASE WHEN v.tran_type = 'slrt' AND v.voucher_type = 'DR' THEN v.amount ELSE 0 END), 0))
-                - COALESCE(SUM(CASE WHEN v.tran_type = 'sl' AND v.voucher_type = 'DR' THEN v.amount ELSE 0 END), 0) AS due
+                - COALESCE(SUM(CASE WHEN v.tran_type = 'sl' AND v.voucher_type = 'DR' THEN v.amount ELSE 0 END), 0)
+                + COALESCE(SUM(CASE WHEN v.tran_type = 'slrt' AND v.voucher_type = 'CR' THEN v.amount ELSE 0 END), 0)
+                AS total_due
+
             FROM
                 sale p
             LEFT JOIN
@@ -45,7 +54,7 @@ return new class extends Migration
                 GROUP BY
                 p.memo_no, p.total, p.id, p.date, p.shipping, p.qty,
                 p.net_total, p.tax, p.discount, p.status, p.payment_status,
-                s.name, s.id, b.name, b.id
+                s.name, s.id, b.name, b.id, p.lot_ref_memo
             ;");
     }
 

@@ -30,7 +30,7 @@
                 </select>
             </div>
             <div class="col-md-8" style="text-align: right">
-                <a wire:navigate href='{{route('product-create') }}' type="button" class="btn btn-primary">Create new product</a>
+                <a wire:navigate href='{{route('product-create') }}' type="button" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New product</a>
             </div>
         </div>
         <div class="responsive-table">

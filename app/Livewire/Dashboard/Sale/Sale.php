@@ -104,14 +104,14 @@ class Sale extends Component
                 DB::raw('SUM(total) AS total'),
                 DB::raw('SUM(paid) AS paid'),
                 DB::raw('SUM(sl_return) AS tot_return'),
-                DB::raw('SUM(due) AS due'),
+                DB::raw('SUM(total_due) AS total_due'),
             )
             ->first();
 
         $this->saleRtAmt = $amt->tot_return;
         $this->saleGrantAmt = $amt->total;
         $this->salePaidAmt = $amt->paid;
-        $this->saleDueAmt = $amt->due;
+        $this->saleDueAmt = $amt->total_due;
     }
     public function mount()
     {
